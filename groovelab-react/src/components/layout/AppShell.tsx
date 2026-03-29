@@ -12,6 +12,7 @@ const Tuner = lazy(() => import('@/features/tuner/Tuner'))
 const Pedalboard = lazy(() => import('@/features/pedalboard/Pedalboard'))
 const SongLab = lazy(() => import('@/features/song-lab/SongLab'))
 const Piano = lazy(() => import('@/features/piano/Piano'))
+const Multitracks = lazy(() => import('@/features/multitracks/Multitracks'))
 
 const TOOLS = {
   metronome: Metronome,
@@ -22,6 +23,7 @@ const TOOLS = {
   pedalboard: Pedalboard,
   songlab: SongLab,
   piano: Piano,
+  multitracks: Multitracks,
 } as const
 
 function LoadingSpinner() {

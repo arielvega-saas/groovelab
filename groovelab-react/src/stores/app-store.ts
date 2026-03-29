@@ -7,6 +7,7 @@ import { persist } from 'zustand/middleware'
 export type ToolId =
   | 'metronome' | 'drums' | 'sampler' | 'looper'
   | 'tuner' | 'pedalboard' | 'songlab' | 'piano'
+  | 'multitracks'
 
 interface AppState {
   activeTool: ToolId
