@@ -1,0 +1,41 @@
+# Flutter
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.lock
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# macOS
+macos/Pods/
+macos/Flutter/ephemeral/
+
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+*.apk
+*.aab
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Secrets (NEVER commit)
+.env
+*.keystore
+*.jks
+google-services.json
+GoogleService-Info.plist
+
+# Firebase
+.firebase/
+firebase-debug.log

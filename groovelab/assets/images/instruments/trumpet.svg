@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 82">
+  <defs>
+    <linearGradient id="tBodyG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D8B030"/>
+      <stop offset="35%" stop-color="#E8C858"/>
+      <stop offset="70%" stop-color="#C8A020"/>
+      <stop offset="100%" stop-color="#8A6800"/>
+    </linearGradient>
+    <linearGradient id="tValveG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E0C060"/>
+      <stop offset="100%" stop-color="#906800"/>
+    </linearGradient>
+    <linearGradient id="tBellG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#C8A020"/>
+      <stop offset="100%" stop-color="#6A4800"/>
+    </linearGradient>
+    <radialGradient id="tBtnG" cx="35%" cy="25%" r="65%">
+      <stop offset="0%" stop-color="#F0D870"/>
+      <stop offset="100%" stop-color="#B08820"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Mouthpiece (upper-left, small gold cup) -->
+  <ellipse cx="8" cy="8" rx="5" ry="2.5" fill="#D0B040"/>
+  <rect x="5" y="5.5" width="6" height="2.5" rx="1" fill="#B89020"/>
+  <circle cx="8" cy="5.5" r="2.2" fill="#C0A030"/>
+  <!-- Mouthpiece shank -->
+  <rect x="7" y="7.5" width="2.5" height="5" rx="1.25" fill="#C09020"/>
+
+  <!-- Lead pipe (from mouthpiece curving to valve section) -->
+  <path d="M 10,10 C 14,12 20,16 24,22"
+        fill="none" stroke="#C89020" stroke-width="5" stroke-linecap="round"/>
+  <path d="M 10,10 C 14,12 20,16 24,22"
+        fill="none" stroke="rgba(255,220,100,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Top valve cross-bar (connects all 3 valve tops) -->
+  <rect x="22" y="21" width="24" height="3.5" rx="1.75" fill="#C89020"/>
+  <rect x="22" y="21" width="24" height="1.5" rx="0.75" fill="rgba(255,220,100,0.18)"/>
+
+  <!-- Valve 1 casing (leftmost) -->
+  <rect x="22" y="24.5" width="7" height="18" rx="3.5" fill="url(#tValveG)"/>
+  <rect x="22" y="24.5" width="7" height="18" rx="3.5" fill="none" stroke="#E0B828" stroke-width="0.5"/>
+  <!-- Valve 1 button (top pearl) -->
+  <ellipse cx="25.5" cy="23.5" rx="4" ry="2" fill="url(#tBtnG)"/>
+  <ellipse cx="25.5" cy="23" rx="3" ry="1.3" fill="rgba(255,230,120,0.3)"/>
+  <!-- Valve 1 finger groove -->
+  <rect x="23" y="38.5" width="5" height="2.5" rx="1.25" fill="#A07010"/>
+
+  <!-- Valve 2 casing (middle) -->
+  <rect x="31" y="25" width="7" height="18" rx="3.5" fill="url(#tValveG)"/>
+  <rect x="31" y="25" width="7" height="18" rx="3.5" fill="none" stroke="#E0B828" stroke-width="0.5"/>
+  <!-- Valve 2 button -->
+  <ellipse cx="34.5" cy="24" rx="4" ry="2" fill="url(#tBtnG)"/>
+  <ellipse cx="34.5" cy="23.5" rx="3" ry="1.3" fill="rgba(255,230,120,0.3)"/>
+  <!-- Valve 2 finger groove -->
+  <rect x="32" y="39" width="5" height="2.5" rx="1.25" fill="#A07010"/>
+
+  <!-- Valve 3 casing (rightmost) -->
+  <rect x="40" y="25.5" width="7" height="18" rx="3.5" fill="url(#tValveG)"/>
+  <rect x="40" y="25.5" width="7" height="18" rx="3.5" fill="none" stroke="#E0B828" stroke-width="0.5"/>
+  <!-- Valve 3 button -->
+  <ellipse cx="43.5" cy="24.5" rx="4" ry="2" fill="url(#tBtnG)"/>
+  <ellipse cx="43.5" cy="24" rx="3" ry="1.3" fill="rgba(255,230,120,0.3)"/>
+  <!-- Valve 3 finger groove -->
+  <rect x="41" y="39.5" width="5" height="2.5" rx="1.25" fill="#A07010"/>
+
+  <!-- Bottom valve connection bar -->
+  <rect x="22" y="42.5" width="25" height="3" rx="1.5" fill="#C08010"/>
+
+  <!-- 3rd valve tuning slide (extends right) -->
+  <path d="M 47,30 L 54,30 Q 56,30 56,32 L 56,36 Q 56,38 54,38 L 47,38"
+        fill="none" stroke="#C89020" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 47.5,30.5 L 53.5,30.5 Q 55,30.5 55,32 L 55,36"
+        fill="none" stroke="rgba(255,220,80,0.2)" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Main tubing loop below valves (connects valves to bell tube) -->
+  <path d="M 25,45.5 L 25,54 Q 25,58 29,58 L 44,58 Q 48,58 48,54 L 48,45.5"
+        fill="none" stroke="#C08010" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Tubing highlight -->
+  <path d="M 25.5,45.5 L 25.5,54 Q 25.5,57 29,57 L 44,57"
+        fill="none" stroke="rgba(255,210,80,0.18)" stroke-width="1.5"/>
+
+  <!-- Water key (spit valve) -->
+  <rect x="26" y="56" width="4" height="2.5" rx="1.25" fill="#A07010"/>
+
+  <!-- Bell tube (right of main tubing curving to bell) -->
+  <path d="M 44,58 C 50,58 54,61 54,66"
+        fill="none" stroke="#C08010" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Bell (large flare, lower-right area) -->
+  <path d="M 50,63 C 52,66 55,71 55,77 C 55,80 52,82 46,82 C 38,82 30,79 26,75 C 22,71 22,66 28,63 C 32,61 38,61 42,63"
+        fill="url(#tBellG)"/>
+  <!-- Bell interior dark opening -->
+  <ellipse cx="40" cy="73" rx="12" ry="7" fill="#1A0C00" opacity="0.6" transform="rotate(-10,40,73)"/>
+  <!-- Bell inner reflection -->
+  <path d="M 27,64 C 23,68 23,74 28,77" fill="none" stroke="rgba(255,210,80,0.35)" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Bell rim -->
+  <path d="M 26,75 C 30,80 38,82.5 46,82 C 52,81.5 55,79 55,77"
+        fill="none" stroke="#D0A820" stroke-width="0.9" opacity="0.6"/>
+</svg>

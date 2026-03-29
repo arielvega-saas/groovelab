@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "groovelab-web",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "--directory", "build/web"],
+      "port": 8090,
+      "autoPort": true
+    }
+  ]
+}

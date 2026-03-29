@@ -1,0 +1,14 @@
+{
+  "name": "GrooveLab — Music Production Studio",
+  "short_name": "GrooveLab",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#00E5FF",
+  "description": "Professional music production PWA: metronome, drums, looper, tuner, pedalboard, piano & more",
+  "orientation": "any",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
