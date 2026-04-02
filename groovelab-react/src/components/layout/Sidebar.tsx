@@ -1,6 +1,6 @@
 import {
   Disc3, Drum, LayoutGrid, Repeat, Guitar, Music2,
-  AudioLines, Piano, ListMusic, type LucideIcon,
+  AudioLines, Piano, ListMusic, Play, type LucideIcon,
 } from 'lucide-react'
 import { useAppStore, type ToolId } from '@/stores/app-store'
 import { cn } from '@/lib/cn'
@@ -22,6 +22,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'songlab', label: 'Song Lab', icon: Music2, color: 'text-gl-purple' },
   { id: 'piano', label: 'Piano', icon: Piano, color: 'text-gl-green' },
   { id: 'multitracks', label: 'Multitracks', icon: ListMusic, color: 'text-gl-accent' },
+  { id: 'playback', label: 'Playback', icon: Play, color: 'text-gl-green' },
 ]
 
 export function Sidebar() {

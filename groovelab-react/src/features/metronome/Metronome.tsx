@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import * as Tone from 'tone'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/cn'
+import { HardwarePanel } from '@/components/ui/HardwarePanel'
 
 /* ──────────────────────────── Types ──────────────────────────── */
 
@@ -302,13 +303,13 @@ export default function Metronome() {
   /* ──────────────────── Render ──────────────────── */
 
   return (
-    <div
+    <div className="w-full max-w-md mx-auto select-none min-h-full overflow-y-auto">
+    <HardwarePanel
+      title="METRONOME"
       className={cn(
-        'relative flex flex-col items-center gap-4 p-4 pb-6 w-full max-w-md mx-auto select-none',
-        'bg-gl-dark min-h-full overflow-y-auto',
-        flash && 'bg-gl-panel',
+        'flex flex-col items-center gap-4 p-4 pb-6 relative transition-colors duration-75',
+        flash && 'bg-studio-800',
       )}
-      style={{ transition: 'background-color 0.08s ease-out' }}
     >
       {/* ── Downbeat flash overlay ── */}
       {flash && (
@@ -320,10 +321,7 @@ export default function Metronome() {
         />
       )}
 
-      {/* ── Title ── */}
-      <h2 className="font-display text-gl-muted text-xs uppercase tracking-[0.25em] z-10">
-        Metronome
-      </h2>
+      {/* ── Title provided by HardwarePanel ── */}
 
       {/* ══════════════ BPM Knob Area ══════════════ */}
       <div className="relative z-10 flex flex-col items-center gap-1">
@@ -351,7 +349,7 @@ export default function Metronome() {
 
           {/* Tick indicator */}
           <div
-            className="absolute w-1 h-5 rounded-full bg-gl-accent top-3 left-1/2 -translate-x-1/2 origin-[50%_340%]"
+            className="absolute w-1 h-5 rounded-full bg-accent top-3 left-1/2 -translate-x-1/2 origin-[50%_340%]"
             style={{
               transform: `translateX(-50%) rotate(${knobRotation}deg)`,
               boxShadow: '0 0 6px rgba(0,229,255,0.6)',
@@ -361,16 +359,16 @@ export default function Metronome() {
           {/* Center BPM display */}
           <div className="flex flex-col items-center">
             <span
-              className="font-mono text-5xl font-bold text-gl-accent text-glow-accent leading-none"
+              className="font-mono text-5xl font-bold text-accent text-glow-accent leading-none"
             >
               {bpm}
             </span>
-            <span className="font-mono text-[10px] text-gl-muted mt-0.5 tracking-wider">BPM</span>
+            <span className="font-mono text-[10px] text-studio-400 mt-0.5 tracking-wider">BPM</span>
           </div>
         </div>
 
         {/* Tempo name */}
-        <span className="font-display text-sm text-gl-muted">{tempoLabel}</span>
+        <span className="font-display text-sm text-studio-400">{tempoLabel}</span>
       </div>
 
       {/* ══════════════ LED Beat Bar ══════════════ */}
@@ -410,8 +408,8 @@ export default function Metronome() {
           'z-10 w-20 h-20 rounded-full flex items-center justify-center',
           'transition-all duration-150 active:scale-95',
           isPlaying
-            ? 'bg-gl-danger glow-danger'
-            : 'bg-gl-accent glow-accent',
+            ? 'bg-error glow-danger'
+            : 'bg-accent glow-accent',
           'neu-raised',
         )}
         aria-label={isPlaying ? 'Stop' : 'Play'}
@@ -436,7 +434,7 @@ export default function Metronome() {
       <div className="z-10 w-full grid grid-cols-2 gap-3">
         {/* Time Signature */}
         <div className="flex flex-col gap-1">
-          <label className="font-display text-[10px] text-gl-muted uppercase tracking-wider text-center">
+          <label className="font-display text-[10px] text-studio-400 uppercase tracking-wider text-center">
             Time Sig
           </label>
           <div className="flex flex-wrap justify-center gap-1">
@@ -447,8 +445,8 @@ export default function Metronome() {
                 className={cn(
                   'px-2 py-1 rounded-md text-xs font-mono transition-colors',
                   timeSig[0] === ts[0] && timeSig[1] === ts[1]
-                    ? 'bg-gl-accent/20 text-gl-accent border border-gl-accent/40'
-                    : 'bg-gl-surface text-gl-muted border border-gl-border hover:border-gl-muted',
+                    ? 'bg-accent-dim text-accent border border-accent/40'
+                    : 'bg-studio-750 text-studio-400 border border-studio-600 hover:border-studio-400',
                 )}
               >
                 {ts[0]}/{ts[1]}
@@ -459,7 +457,7 @@ export default function Metronome() {
 
         {/* Subdivision */}
         <div className="flex flex-col gap-1">
-          <label className="font-display text-[10px] text-gl-muted uppercase tracking-wider text-center">
+          <label className="font-display text-[10px] text-studio-400 uppercase tracking-wider text-center">
             Subdivision
           </label>
           <div className="flex flex-wrap justify-center gap-1">
@@ -470,8 +468,8 @@ export default function Metronome() {
                 className={cn(
                   'px-2 py-1 rounded-md text-xs font-mono transition-colors',
                   subdivision === sub.key
-                    ? 'bg-gl-accent/20 text-gl-accent border border-gl-accent/40'
-                    : 'bg-gl-surface text-gl-muted border border-gl-border hover:border-gl-muted',
+                    ? 'bg-accent-dim text-accent border border-accent/40'
+                    : 'bg-studio-750 text-studio-400 border border-studio-600 hover:border-studio-400',
                 )}
               >
                 {sub.label}
@@ -483,7 +481,7 @@ export default function Metronome() {
 
       {/* ══════════════ Click Sound Presets ══════════════ */}
       <div className="z-10 w-full flex flex-col gap-1">
-        <label className="font-display text-[10px] text-gl-muted uppercase tracking-wider text-center">
+        <label className="font-display text-[10px] text-studio-400 uppercase tracking-wider text-center">
           Click Sound
         </label>
         <div className="flex flex-wrap justify-center gap-1.5">
@@ -494,8 +492,8 @@ export default function Metronome() {
               className={cn(
                 'px-3 py-1.5 rounded-lg text-xs font-display transition-colors',
                 clickSound === preset
-                  ? 'bg-gl-accent/20 text-gl-accent border border-gl-accent/40'
-                  : 'bg-gl-surface text-gl-muted border border-gl-border hover:border-gl-muted',
+                  ? 'bg-accent-dim text-accent border border-accent/40'
+                  : 'bg-studio-750 text-studio-400 border border-studio-600 hover:border-studio-400',
               )}
             >
               {preset}
@@ -507,10 +505,10 @@ export default function Metronome() {
       {/* ══════════════ Swing Slider ══════════════ */}
       <div className="z-10 w-full flex flex-col gap-1 px-2">
         <div className="flex items-center justify-between">
-          <label className="font-display text-[10px] text-gl-muted uppercase tracking-wider">
+          <label className="font-display text-[10px] text-studio-400 uppercase tracking-wider">
             Swing
           </label>
-          <span className="font-mono text-xs text-gl-accent">{swing}%</span>
+          <span className="font-mono text-xs text-accent">{swing}%</span>
         </div>
         <input
           type="range"
@@ -530,9 +528,9 @@ export default function Metronome() {
         onClick={handleTap}
         className={cn(
           'z-10 w-full py-3 rounded-xl font-display text-sm uppercase tracking-wider',
-          'bg-gl-surface text-gl-muted border border-gl-border',
+          'bg-studio-750 text-studio-400 border border-studio-600',
           'neu-flat active:neu-inset active:scale-[0.98] transition-all',
-          'hover:text-gl-accent hover:border-gl-accent/30',
+          'hover:text-accent hover:border-accent/30',
         )}
       >
         Tap Tempo
@@ -540,7 +538,7 @@ export default function Metronome() {
 
       {/* ══════════════ Tempo Presets ══════════════ */}
       <div className="z-10 w-full flex flex-col gap-1">
-        <label className="font-display text-[10px] text-gl-muted uppercase tracking-wider text-center">
+        <label className="font-display text-[10px] text-studio-400 uppercase tracking-wider text-center">
           Presets
         </label>
         <div className="flex flex-wrap justify-center gap-1.5">
@@ -551,8 +549,8 @@ export default function Metronome() {
               className={cn(
                 'px-2.5 py-1 rounded-lg text-[11px] font-display transition-colors',
                 bpm === p.bpm
-                  ? 'bg-gl-warm/20 text-gl-warm border border-gl-warm/40'
-                  : 'bg-gl-surface text-gl-muted border border-gl-border hover:border-gl-muted',
+                  ? 'bg-warning/20 text-warning border border-warning/40'
+                  : 'bg-studio-750 text-studio-400 border border-studio-600 hover:border-studio-400',
               )}
             >
               {p.name}
@@ -566,8 +564,8 @@ export default function Metronome() {
       <div className="z-10 flex items-center gap-3">
         <button
           onClick={() => setBpm(bpm - 1)}
-          className="w-10 h-10 rounded-full bg-gl-surface border border-gl-border text-gl-muted font-mono text-lg
-                     neu-flat active:neu-inset transition-all hover:text-gl-accent"
+          className="w-10 h-10 rounded-full bg-studio-750 border border-studio-600 text-studio-400 font-mono text-lg
+                     neu-flat active:neu-inset transition-all hover:text-accent"
         >
           -
         </button>
@@ -584,12 +582,13 @@ export default function Metronome() {
         />
         <button
           onClick={() => setBpm(bpm + 1)}
-          className="w-10 h-10 rounded-full bg-gl-surface border border-gl-border text-gl-muted font-mono text-lg
-                     neu-flat active:neu-inset transition-all hover:text-gl-accent"
+          className="w-10 h-10 rounded-full bg-studio-750 border border-studio-600 text-studio-400 font-mono text-lg
+                     neu-flat active:neu-inset transition-all hover:text-accent"
         >
           +
         </button>
       </div>
+    </HardwarePanel>
     </div>
   )
 }

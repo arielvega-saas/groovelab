@@ -7,11 +7,15 @@ import 'services/revenuecat_service.dart';
 import 'services/firebase_init.dart';
 import 'features/pedalera/pedalera_stub_register.dart'
     if (dart.library.js_interop) 'features/pedalera/pedalera_web_register.dart';
+import 'features/playback/playback_stub_register.dart'
+    if (dart.library.js_interop) 'features/playback/playback_web_register.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Register the pedalera iframe view factory (web only, no-op on native)
   registerPedaleraWebView();
+  // Register the playback iframe view factory (web only, no-op on native)
+  registerPlaybackWebView();
   // Allow all orientations — responsive layout handles adaptation.
   // On phones, the UI is optimized for portrait but landscape is allowed.
   // On tablets/desktop, landscape is the preferred experience.

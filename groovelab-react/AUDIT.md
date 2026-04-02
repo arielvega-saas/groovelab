@@ -1,81 +1,46 @@
-# AUDIT.md — GrooveLab React Audit
+# AUDIT.md — GrooveLab React v4.0
 
-## Stack Tecnologico
-- **React 19.2.4** + **TypeScript**
-- **Vite** (build + dev server)
-- **Tailwind CSS 3.4.19** (custom theme)
-- **Zustand 5.0.12** (state management, persisted)
-- **Tone.js 15.1.22** (audio engine)
-- **React Three Fiber + Drei** (3D: Drums, Piano)
-- **@dnd-kit** (drag-reorder: Pedalboard)
-- **Lucide React** (icons)
-- **clsx + tailwind-merge** (class utilities)
-- **idb** (IndexedDB storage)
+## Stack
+- React 19.2.4 + TypeScript ~5.6.2 + Vite 5.4.10
+- Tailwind CSS 3.4.19 (darkMode: 'class')
+- Zustand 5.0.12 (app-store + multitrack-store)
+- Tone.js 15.1.22 (audio-engine singleton)
+- Motion 12.38.0, React Three Fiber 9.5.0, @dnd-kit, Lucide React
+- cn() exists at src/lib/cn.ts + src/lib/utils.ts
 
-## Arbol de Componentes
-```
-App.tsx
-└── AppShell.tsx (layout)
-    ├── Sidebar.tsx (72px, 8 nav items)
-    ├── TopBar.tsx (title + BPM + masterVolume)
-    └── main → Lazy-loaded modules:
-        ├── features/metronome/Metronome.tsx
-        ├── features/drums/Drums.tsx
-        ├── features/sampler-pads/SamplerPads.tsx
-        ├── features/looper/Looper.tsx
-        ├── features/tuner/Tuner.tsx
-        ├── features/pedalboard/Pedalboard.tsx
-        ├── features/song-lab/SongLab.tsx
-        └── features/piano/Piano.tsx
-```
+## Stores
+- **app-store**: activeTool, sidebarOpen, masterVolume, bpm, isPlaying, timeSig, audioInitialized (persisted)
+- **multitrack-store**: currentTime, duration, pistaBase, pistasMultitrack, cancionActiva, repertorio
+- **audio-engine**: Tone.js singleton. Gain > EQ3 > Reverb > Limiter > Destination
 
-## Estado Global (Zustand — stores/app-store.ts)
-- `activeTool`: ToolId (8 tools)
-- `bpm`: 20-500, default 120
-- `isPlaying`: transport state
-- `timeSig`: [4, 4]
-- `masterVolume`: 0-1, default 0.8
-- `sidebarOpen`, `audioInitialized`
-- Persisted: bpm, timeSig, masterVolume, activeTool
+## Navigation
+- No React Router active. app-store.activeTool dispatches lazy-loaded components via AppShell.
 
-## Audio Engine (stores/audio-engine.ts)
-- Singleton: init() creates AudioContext (48kHz, 5ms lookahead)
-- Master chain: masterGain → 3-band EQ → limiter → destination
-- Parallel reverb send bus
-- 15+ effects via createEffectChain()
-- WAV export, latency measurement, mic input
+## Design System (already implemented)
+- Studio palette, accent #04C5F7, LED/metal/pedal colors
+- Fonts: Audiowide, Orbitron, Inter, JetBrains Mono
+- Shadows: knob, pedal, led-*, metal-*, glow-accent
+- CSS: .numeric, .hw-label, .no-select, .neu-*, .glow-*
 
-## Modulos — Estado Actual
-| Modulo | Path | Estado | Audio |
-|--------|------|--------|-------|
-| Metronome | features/metronome/ | ✅ Completo | Tone.Synth + Transport Loop |
-| Drums | features/drums/ | ✅ Completo + 3D | Tone.Synth x5 + Transport |
-| Pads | features/sampler-pads/ | ✅ Completo | Tone.PolySynth, 3 modes |
-| Looper | features/looper/ | ✅ Completo | Tone.Recorder + Players |
-| Tuner | features/tuner/ | ✅ Completo | Autocorrelation pitch detect |
-| Pedalboard | features/pedalboard/ | ✅ Completo | 20+ FX, drag-reorder, scenes |
-| Song Lab | features/song-lab/ | ⚠️ Parcial | Player + stems (simulado) |
-| Piano | features/piano/ | ✅ Completo + 3D | 5 instruments, 61 keys |
+## UI Components (already exist)
+- LED, LEDBar, Knob, RotaryKnob, Fader, VUMeter, HardwarePanel
+- AppShell, Sidebar, TopBar, AppHeader
+- MetronomeDisplay, LooperTrackCard, TunerDisplay
 
-## Design System Actual
-- Background: #0A0A0A (gl-deepest)
-- Accent: #00E5FF (cyan)
-- Fonts: Outfit (display), JetBrains Mono (mono)
-- Shadows: neumorphism (.neu-raised, .neu-inset)
-- Glows: .glow-accent, .glow-green, .glow-warm
-- Dark mode: enabled by default
+## Module Status
+| Module | Status | Audio |
+|--------|--------|-------|
+| Metronome | 100% | Tone.js Synth+Loop |
+| Drums | 100% | Tone.js Synth+3D |
+| Looper | 100% | WebAudio+Tone.js |
+| Tuner | 100% | Mic FFT |
+| Piano | 100% | Tone.js PolySynth+3D |
+| Pedalboard | 100% | Tone.js effects |
+| Sampler Pads | 100% | Tone.js Synth |
+| Song Lab | ~40% | Placeholder stem |
+| Multitracks | ~30% | UI only |
 
-## Reproductor Song Lab
-- Tone.Player for master playback
-- Tone.PitchShift (±12 semitones)
-- Per-stem: Player + EQ3 + Panner + Volume
-- A-B loop markers
-- Waveform via canvas
-- Stem separation SIMULATED (no real processing)
-
-## Lo que FALTA (segun prompt)
-1. Design system upgrade (BIAS FX 2 level visuals)
-2. Modulo Multitracks (completo, nuevo)
-3. Shared audio player (Song Lab ↔ Multitracks)
-4. Visual upgrades en todos los modulos
-5. AppHeader premium
+## Gaps
+1. Multitracks: UI only, needs audio playback
+2. Song Lab: No real stem separation
+3. No useSharedPlayer connecting SongLab <-> Multitracks

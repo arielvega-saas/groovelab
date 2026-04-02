@@ -285,6 +285,13 @@ class HomeTab extends ConsumerWidget {
         tabIndex: 11,
         subtitle: 'Signal Chain',
       ),
+      _ModuleData(
+        name: 'PlayBack',
+        icon: Icons.play_circle_rounded,
+        color: ModuleColors.playback,
+        tabIndex: 13,
+        subtitle: 'Multitrack Live',
+      ),
     ];
   }
 }

@@ -14,6 +14,7 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import { useAppStore } from '@/stores/app-store'
 import { cn } from '@/lib/cn'
+import { HardwarePanel } from '@/components/ui/HardwarePanel'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -839,30 +840,28 @@ export default function Drums() {
   // -------------------------------------------------------------------------
 
   return (
-    <div className="flex flex-col gap-4 w-full max-w-4xl mx-auto select-none">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gl-text tracking-wide uppercase">Drum Machine</h2>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => { void Tone.start(); setPlaying(!isPlaying) }}
-            className={cn(
-              'px-4 py-2 rounded-lg font-bold text-sm tracking-wider transition-all',
-              isPlaying
-                ? 'bg-gl-danger text-white glow-danger'
-                : 'bg-gl-accent text-gl-deepest glow-accent',
-              'neu-raised hover:brightness-110 active:scale-95',
-            )}
-          >
-            {isPlaying ? 'STOP' : 'PLAY'}
-          </button>
-          <button
-            onClick={clearPattern}
-            className="px-3 py-2 rounded-lg text-sm text-gl-muted bg-gl-surface neu-raised hover:text-gl-text transition-colors"
-          >
-            CLEAR
-          </button>
-        </div>
+    <div className="w-full max-w-4xl mx-auto select-none">
+      <HardwarePanel title="DRUM MACHINE" className="p-4 flex flex-col gap-4">
+      {/* Play controls */}
+      <div className="flex items-center justify-end gap-2">
+        <button
+          onClick={() => { void Tone.start(); setPlaying(!isPlaying) }}
+          className={cn(
+            'px-4 py-2 rounded-lg font-bold text-sm tracking-wider transition-all',
+            isPlaying
+              ? 'bg-error text-white glow-danger'
+              : 'bg-accent text-studio-950 shadow-glow-accent',
+            'neu-raised hover:brightness-110 active:scale-95',
+          )}
+        >
+          {isPlaying ? 'STOP' : 'PLAY'}
+        </button>
+        <button
+          onClick={clearPattern}
+          className="px-3 py-2 rounded-lg text-sm text-studio-400 bg-studio-750 neu-raised hover:text-studio-100 transition-colors"
+        >
+          CLEAR
+        </button>
       </div>
 
       {/* 3D Drum Kit Scene */}
@@ -877,8 +876,8 @@ export default function Drums() {
             className={cn(
               'px-3 py-1.5 rounded-md text-xs font-semibold transition-all',
               drumStyle === i
-                ? 'bg-gl-accent text-gl-deepest glow-accent'
-                : 'bg-gl-surface text-gl-muted hover:text-gl-text neu-flat',
+                ? 'bg-accent text-studio-950 shadow-glow-accent'
+                : 'bg-studio-750 text-studio-400 hover:text-studio-100 neu-flat',
             )}
           >
             {style.name}
@@ -897,7 +896,7 @@ export default function Drums() {
               className={cn(
                 'relative flex flex-col items-center justify-center gap-1',
                 'aspect-square rounded-2xl transition-all duration-100',
-                'bg-gl-elevated neu-raised cursor-pointer',
+                'bg-studio-700 neu-raised cursor-pointer',
                 activeVoice === voice.id && 'ring-2',
                 isHit && 'drum-pad-hit',
               )}
@@ -927,11 +926,11 @@ export default function Drums() {
       </div>
 
       {/* Per-voice volume for selected voice */}
-      <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-gl-panel neu-inset">
+      <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-studio-800 neu-inset">
         <span className="text-xs font-bold w-16 truncate" style={{ color: activeVoiceInfo.color }}>
           {activeVoiceInfo.label}
         </span>
-        <span className="text-[10px] text-gl-muted font-mono">VOL</span>
+        <span className="text-[10px] text-studio-400 font-mono">VOL</span>
         <input
           type="range"
           min={-24}
@@ -939,16 +938,16 @@ export default function Drums() {
           step={1}
           value={volumes[activeVoice]}
           onChange={(e) => handleVolumeChange(activeVoice, Number(e.target.value))}
-          className="flex-1 h-1.5 accent-gl-accent cursor-pointer"
+          className="flex-1 h-1.5 accent-accent cursor-pointer"
           style={{ accentColor: activeVoiceInfo.color }}
         />
-        <span className="text-xs font-mono text-gl-muted w-10 text-right">
+        <span className="text-xs font-mono text-studio-400 w-10 text-right">
           {volumes[activeVoice] > 0 ? '+' : ''}{volumes[activeVoice]} dB
         </span>
       </div>
 
       {/* 16-step sequencer grid */}
-      <div className="rounded-2xl bg-gl-panel p-3 neu-inset overflow-x-auto">
+      <div className="rounded-2xl bg-studio-800 p-3 neu-inset overflow-x-auto">
         {/* Step numbers header */}
         <div className="grid gap-1 mb-1" style={{ gridTemplateColumns: `48px repeat(${STEPS}, 1fr)` }}>
           <div /> {/* spacer */}
@@ -958,10 +957,10 @@ export default function Drums() {
               className={cn(
                 'text-center text-[10px] font-mono rounded py-0.5 transition-colors',
                 currentStep === i
-                  ? 'text-gl-accent font-bold text-glow-accent'
+                  ? 'text-accent font-bold text-glow-accent'
                   : i % 4 === 0
-                    ? 'text-gl-muted'
-                    : 'text-gl-dim',
+                    ? 'text-studio-400'
+                    : 'text-studio-500',
               )}
             >
               {i + 1}
@@ -981,7 +980,7 @@ export default function Drums() {
               onClick={() => setActiveVoice(voice.id)}
               className={cn(
                 'flex items-center justify-center text-[11px] font-bold rounded-md py-1 transition-all',
-                activeVoice === voice.id ? 'bg-gl-surface' : 'bg-transparent hover:bg-gl-surface/50',
+                activeVoice === voice.id ? 'bg-studio-750' : 'bg-transparent hover:bg-studio-750/50',
               )}
               style={{ color: voice.color }}
             >
@@ -1004,9 +1003,9 @@ export default function Drums() {
                   }}
                   className={cn(
                     'relative rounded-md aspect-[1/0.8] min-h-[28px] transition-all duration-75 border overflow-hidden',
-                    step % 4 === 0 ? 'border-gl-border/40' : 'border-transparent',
-                    !isActive && 'bg-gl-surface/60 hover:bg-gl-surface',
-                    isCurrent && !isActive && 'ring-1 ring-gl-accent/60',
+                    step % 4 === 0 ? 'border-studio-600/40' : 'border-transparent',
+                    !isActive && 'bg-studio-750/60 hover:bg-studio-750',
+                    isCurrent && !isActive && 'ring-1 ring-accent/60',
                     isCurrent && isActive && 'led-current-pulse',
                   )}
                   style={isActive ? {
@@ -1070,8 +1069,8 @@ export default function Drums() {
                 <span className={cn(
                   'w-1.5 h-1.5 rounded-full transition-all',
                   currentStep >= i && currentStep < i + 4
-                    ? 'bg-gl-accent'
-                    : 'bg-gl-border',
+                    ? 'bg-accent'
+                    : 'bg-studio-600',
                 )} style={
                   currentStep >= i && currentStep < i + 4
                     ? { boxShadow: '0 0 6px #00E5FF88' }
@@ -1088,7 +1087,7 @@ export default function Drums() {
         {VOICES.map((voice) => (
           <div
             key={voice.id}
-            className="flex flex-col items-center gap-1 rounded-xl bg-gl-surface/50 p-2"
+            className="flex flex-col items-center gap-1 rounded-xl bg-studio-750/50 p-2"
           >
             <span className="text-[10px] font-bold" style={{ color: voice.color }}>
               {voice.shortLabel}
@@ -1103,7 +1102,7 @@ export default function Drums() {
               className="w-full h-1 cursor-pointer"
               style={{ accentColor: voice.color }}
             />
-            <span className="text-[9px] font-mono text-gl-dim">
+            <span className="text-[9px] font-mono text-studio-500">
               {volumes[voice.id]}dB
             </span>
           </div>
@@ -1111,9 +1110,10 @@ export default function Drums() {
       </div>
 
       {/* Hint */}
-      <p className="text-[10px] text-gl-dim text-center">
+      <p className="text-[10px] text-studio-500 text-center">
         Click 3D drums to preview. Tap pads to preview. Click grid to toggle steps. Right-click to cycle velocity.
       </p>
+      </HardwarePanel>
     </div>
   )
 }

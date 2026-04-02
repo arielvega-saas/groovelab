@@ -48,6 +48,7 @@ flutter:
     - assets/images/instruments/
     - assets/pedalera/
     - assets/pedalera/worklets/
+    - assets/playback/
   fonts:
     - family: Outfit
       fonts:

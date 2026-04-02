@@ -4,9 +4,18 @@
     {
       "name": "groovelab-web",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "--directory", "build/web"],
-      "port": 8090,
-      "autoPort": true
+      "runtimeArgs": ["-m", "http.server", "--directory", "/Users/arielvega/Downloads/groovelab/build/web", "8090"],
+      "port": 8090
+    },
+    {
+      "name": "groovelab-react",
+      "runtimeExecutable": "/Users/arielvega/.nvm/versions/node/v22.22.2/bin/node",
+      "runtimeArgs": ["./node_modules/.bin/vite", "--port", "5173"],
+      "port": 5173,
+      "cwd": "groovelab-react",
+      "env": {
+        "PATH": "/Users/arielvega/.nvm/versions/node/v22.22.2/bin:/usr/local/bin:/usr/bin:/bin"
+      }
     }
   ]
 }

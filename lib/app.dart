@@ -28,7 +28,13 @@ import 'features/pads/pads_tab.dart';
 import 'features/tuner/tuner_tab.dart';
 import 'features/song_lab/song_lab_tab.dart';
 import 'features/pedalera/pedalera_tab.dart';
+import 'features/pedalera/pedalera_webview.dart';
+import 'features/pedalera/pedalera_stub_register.dart'
+    if (dart.library.js_interop) 'features/pedalera/pedalera_web_register.dart';
 import 'features/home/home_tab.dart';
+import 'features/livestage/livestage_tab.dart'; // LiveStage Multitrack Console
+import 'features/livestage/livestage_stub_register.dart'
+    if (dart.library.js_interop) 'features/livestage/livestage_web_register.dart';
 import 'features/shared/paywall_gate.dart';
 import 'core/responsive.dart';
 import 'l10n/translations.dart';
@@ -297,6 +303,15 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
     final lang = ref.watch(langProvider);
     final tabIdx = ref.watch(tabIndexProvider);
 
+    // Web: show/hide pedalera iframe overlay based on active tab
+    if (kIsWeb) {
+      if (tabIdx == 11) {
+        WidgetsBinding.instance.addPostFrameCallback((_) => showPedaleraOverlay());
+      } else {
+        WidgetsBinding.instance.addPostFrameCallback((_) => hidePedaleraOverlay());
+      }
+    }
+
     return MaterialApp(
       navigatorKey: _navigatorKey,
       title: 'GrooveLab',
@@ -501,7 +516,8 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
                     const TunerTab(),
                     const HomeTab(), // index 9
                     PaywallGate(feature: 'Song Lab', child: const SongLabTab()), // index 10
-                    PaywallGate(feature: 'Pedalera', child: const PedaleraTab()), // index 11
+                    PaywallGate(feature: 'Pedalera', child: const PedaleraWebView()), // index 11
+                    PaywallGate(feature: 'LiveStage', child: const LiveStageTab()), // index 12 — LiveStage (replaces Multitracks + Playback)
                   ],
                 ),
               ),
@@ -610,6 +626,7 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
                             _navTab(6, Icons.library_books_rounded,   tr(lang, 'tabLibrary'),   flex ? null : tabW),
                             _navTab(11, Icons.cable_rounded,          'Pedalera',               flex ? null : tabW),
                             _navTab(10, Icons.library_music_rounded,  tr(lang, 'tabSongLab'),   flex ? null : tabW),
+                            _navTab(12, Icons.play_circle_rounded,    'LiveStage',              flex ? null : tabW),
                           ];
                           if (flex) {
                             return Row(children: tabs.map((t) => Expanded(child: t)).toList());
@@ -754,6 +771,7 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
       (8, Icons.graphic_eq_rounded, tr(lang, 'tabTuner')),
       (11, Icons.cable_rounded, 'Pedalera'),
       (10, Icons.library_music_rounded, tr(lang, 'tabSongLab')),
+      (12, Icons.play_circle_rounded, 'LiveStage'),
       (6, Icons.library_books_rounded, tr(lang, 'tabLibrary')),
     ];
 

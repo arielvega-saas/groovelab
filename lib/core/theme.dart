@@ -272,6 +272,7 @@ class ModuleColors {
   static const pedalera  = Color(0xFFF43F5E);       // rose
   static const songLab   = Color(0xFFA855F7);       // violet
   static const record    = AppColors.danger;         // red
+  static const playback  = Color(0xFF4A90F7);       // bright blue
 }
 
 /// Per-instrument color lookup for drum sequencer.

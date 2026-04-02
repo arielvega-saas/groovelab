@@ -31,6 +31,7 @@ import 'features/pedalera/pedalera_tab.dart';
 import 'features/pedalera/pedalera_webview.dart';
 import 'features/pedalera/pedalera_stub_register.dart'
     if (dart.library.js_interop) 'features/pedalera/pedalera_web_register.dart';
+import 'features/playback/playback_tab.dart';
 import 'features/home/home_tab.dart';
 import 'features/shared/paywall_gate.dart';
 import 'core/responsive.dart';
@@ -514,6 +515,7 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
                     const HomeTab(), // index 9
                     PaywallGate(feature: 'Song Lab', child: const SongLabTab()), // index 10
                     PaywallGate(feature: 'Pedalera', child: const PedaleraWebView()), // index 11
+                    PaywallGate(feature: 'PlayBack', child: const PlaybackTab()), // index 12
                   ],
                 ),
               ),
@@ -608,7 +610,7 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
                     child: LayoutBuilder(
                       builder: (context, constraints) {
                         const tabW = AppSizes.navTabWidth;
-                        final totalW = tabW * 9;
+                        final totalW = tabW * 10;
                         final useFlex = constraints.maxWidth >= totalW;
 
                         Widget buildTabs({bool flex = false}) {
@@ -621,6 +623,7 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
                             _navTab(8, Icons.graphic_eq_rounded,       tr(lang, 'tabTuner'),     flex ? null : tabW),
                             _navTab(6, Icons.library_books_rounded,   tr(lang, 'tabLibrary'),   flex ? null : tabW),
                             _navTab(11, Icons.cable_rounded,          'Pedalera',               flex ? null : tabW),
+                            _navTab(12, Icons.play_circle_rounded,   'PlayBack',               flex ? null : tabW),
                             _navTab(10, Icons.library_music_rounded,  tr(lang, 'tabSongLab'),   flex ? null : tabW),
                           ];
                           if (flex) {
@@ -765,6 +768,7 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
       (3, Icons.autorenew_rounded, tr(lang, 'tabLooper')),
       (8, Icons.graphic_eq_rounded, tr(lang, 'tabTuner')),
       (11, Icons.cable_rounded, 'Pedalera'),
+      (12, Icons.play_circle_rounded, 'PlayBack'),
       (10, Icons.library_music_rounded, tr(lang, 'tabSongLab')),
       (6, Icons.library_books_rounded, tr(lang, 'tabLibrary')),
     ];

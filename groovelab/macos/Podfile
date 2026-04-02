@@ -40,4 +40,23 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_macos_build_settings(target)
   end
+
+  # ── Patch flutter_inappwebview_macos for Xcode / macOS 26 beta ──
+  # The ASWebAuthenticationSession presentationAnchor method signature changed.
+  # This patches the source in Pods to fix the Swift compilation error.
+  webauth_file = File.join(
+    installer.sandbox.root.to_s,
+    'flutter_inappwebview_macos',
+    'macos', 'Classes', 'WebAuthenticationSession', 'WebAuthenticationSession.swift'
+  )
+  if File.exist?(webauth_file)
+    content = File.read(webauth_file)
+    old_sig = 'public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor'
+    new_sig = '@MainActor public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor'
+    if content.include?(old_sig) && !content.include?('@MainActor public func presentationAnchor')
+      content.gsub!(old_sig, new_sig)
+      File.write(webauth_file, content)
+      puts "[GrooveLab] Patched flutter_inappwebview_macos presentationAnchor for macOS 26 compatibility"
+    end
+  end
 end
