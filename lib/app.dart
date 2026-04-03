@@ -35,6 +35,9 @@ import 'features/home/home_tab.dart';
 import 'features/livestage/livestage_tab.dart'; // LiveStage Multitrack Console
 import 'features/livestage/livestage_stub_register.dart'
     if (dart.library.js_interop) 'features/livestage/livestage_web_register.dart';
+import 'features/music_studio/music_studio_tab.dart'; // Music Studio AI
+import 'features/music_studio/music_studio_stub_register.dart'
+    if (dart.library.js_interop) 'features/music_studio/music_studio_web_register.dart';
 import 'features/shared/paywall_gate.dart';
 import 'core/responsive.dart';
 import 'l10n/translations.dart';
@@ -518,6 +521,7 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
                     PaywallGate(feature: 'Song Lab', child: const SongLabTab()), // index 10
                     PaywallGate(feature: 'Pedalera', child: const PedaleraWebView()), // index 11
                     PaywallGate(feature: 'LiveStage', child: const LiveStageTab()), // index 12 — LiveStage (replaces Multitracks + Playback)
+                    PaywallGate(feature: 'Music Studio', child: const MusicStudioTab()), // index 13 — Music Studio AI
                   ],
                 ),
               ),
@@ -627,6 +631,7 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
                             _navTab(11, Icons.cable_rounded,          'Pedalera',               flex ? null : tabW),
                             _navTab(10, Icons.library_music_rounded,  tr(lang, 'tabSongLab'),   flex ? null : tabW),
                             _navTab(12, Icons.play_circle_rounded,    'LiveStage',              flex ? null : tabW),
+                            _navTab(13, Icons.auto_fix_high_rounded,  'Studio',                 flex ? null : tabW),
                           ];
                           if (flex) {
                             return Row(children: tabs.map((t) => Expanded(child: t)).toList());
@@ -772,6 +777,7 @@ class _GrooveLabAppState extends ConsumerState<GrooveLabApp> {
       (11, Icons.cable_rounded, 'Pedalera'),
       (10, Icons.library_music_rounded, tr(lang, 'tabSongLab')),
       (12, Icons.play_circle_rounded, 'LiveStage'),
+      (13, Icons.auto_fix_high_rounded, 'Music Studio'),
       (6, Icons.library_books_rounded, tr(lang, 'tabLibrary')),
     ];
 

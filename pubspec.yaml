@@ -50,6 +50,7 @@ flutter:
     - assets/pedalera/
     - assets/pedalera/worklets/
     - assets/livestage/
+    - assets/music_studio/
   fonts:
     - family: Outfit
       fonts:

@@ -19,11 +19,12 @@ lib/features/[nombre_modulo]/
 
 ## Puertos asignados
 
-| Modulo     | Puerto | Estado     |
-|------------|--------|------------|
-| Pedalera   | 8765   | Activo     |
-| PlayBack   | 8766   | Deprecado  |
-| LiveStage  | 8767   | Activo     |
+| Modulo        | Puerto | Estado     |
+|---------------|--------|------------|
+| Pedalera      | 8765   | Activo     |
+| PlayBack      | 8766   | Deprecado  |
+| LiveStage     | 8767   | Activo     |
+| Music Studio  | 8768   | Activo     |
 
 **Importante**: Cada modulo usa un puerto diferente para evitar conflictos.
 

@@ -40,6 +40,7 @@ lib/
     settings/                 # Configuracion
     timing_analysis/          # Analisis de timing
     livestage/                # LiveStage — consola multitrack live (HTML via WebView)
+    music_studio/             # Music Studio — separacion IA, acordes, lyrics, multitrack DAW (HTML via WebView + FastAPI backend)
     multitrack/               # [DEPRECADO] Prototipo viejo de multitracks
     playback/                 # [DEPRECADO] Reemplazado por LiveStage
     shared/                   # Widgets compartidos (PaywallGate, etc.)
@@ -80,6 +81,7 @@ Index  Widget                  Seccion          Estado
 10     SongLabTab              Song Lab         OK (paywall)
 11     PedaleraWebView         Pedalera         OK (paywall)
 12     LiveStageTab            LiveStage        EN DESARROLLO (paywall)
+13     MusicStudioTab          Music Studio     EN DESARROLLO (paywall)
 ```
 
 **Eliminados:**
@@ -97,8 +99,9 @@ Index  Widget                  Seccion          Estado
 (8,  Icons.graphic_eq_rounded,    'Tuner')
 (11, Icons.cable_rounded,         'Pedalera')
 (10, Icons.library_music_rounded, 'Song Lab')
-(12, Icons.play_circle_rounded,   'LiveStage')
-(6,  Icons.library_books_rounded, 'Library')
+(12, Icons.play_circle_rounded,      'LiveStage')
+(13, Icons.auto_fix_high_rounded,    'Music Studio')
+(6,  Icons.library_books_rounded,    'Library')
 ```
 
 ## Providers Riverpod principales

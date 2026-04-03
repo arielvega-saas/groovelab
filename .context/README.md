@@ -8,6 +8,7 @@ Esta carpeta contiene toda la documentacion necesaria para que cualquier IA pued
 |---------|-----------|
 | `ARCHITECTURE.md` | Arquitectura general, stack, navegacion, providers |
 | `LIVESTAGE.md` | Especificacion completa de la seccion LiveStage (ex-PlayBack) |
+| `MUSIC_STUDIO.md` | Especificacion completa de Music Studio (IA, stems, acordes, lyrics) |
 | `DESIGN_SYSTEM.md` | Colores, tipografia, tokens, efectos visuales |
 | `INTEGRATION_GUIDE.md` | Como integrar un HTML en la app Flutter via InAppWebView |
 | `CHANGELOG.md` | Historial de cambios realizados hasta la fecha |

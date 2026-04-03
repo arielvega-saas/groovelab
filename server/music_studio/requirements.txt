@@ -1,0 +1,32 @@
+# GrooveLab Music Studio - Backend Dependencies
+
+# Web framework
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9
+
+# Audio processing
+librosa>=0.10.1
+soundfile>=0.12.1
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Stem separation
+demucs>=4.0.1
+torch>=2.0.0
+torchaudio>=2.0.0
+
+# Lyrics transcription
+openai-whisper>=20231117
+
+# Audio effects
+pyrubberband>=0.3.0
+
+# YouTube download
+yt-dlp>=2024.1.0
+
+# Data models
+pydantic>=2.5.0
+
+# WebSocket support (included in uvicorn[standard])
+websockets>=12.0

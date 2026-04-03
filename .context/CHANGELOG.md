@@ -1,5 +1,66 @@
 # GrooveLab — Changelog
 
+## 2026-04-02 — Music Studio (Moises.ai-like AI features)
+
+### Nuevas features
+- **Music Studio completo** — seccion nueva con separacion IA, deteccion de acordes, transcripcion de letras, reproductor multitrack DAW-like
+- Index 13 en IndexedStack, icono `auto_fix_high_rounded`
+
+### Backend (FastAPI) — `server/music_studio/`
+- **Demucs htdemucs_6s** — separacion en 6 stems (vocals, drums, bass, guitar, piano, other)
+- **Whisper** — transcripcion de letras con timestamps word-level
+- **librosa** — deteccion de BPM, acordes, secciones, pitch shift, tempo change
+- **yt-dlp** — descarga de audio desde YouTube/URLs
+- 14 endpoints REST + WebSocket para progreso en tiempo real
+- Dockerfile incluido para deployment
+
+### Frontend HTML — `assets/music_studio/music_studio.html`
+- 2895 lineas, autocontenido (CSS + JS inline)
+- WaveSurfer.js v7 para waveforms multitrack sincronizados
+- Mixer con Web Audio API (volume, pan, solo/mute por stem)
+- Vista de acordes (3 niveles de dificultad)
+- Letras karaoke word-by-word
+- Secciones de cancion detectadas automaticamente
+- Controles de pitch (-12/+12 semitonos) y tempo (50-200%)
+- Metronomo inteligente sincronizado
+- Exportacion de stems (individual o ZIP completo)
+- Historial de proyectos
+- Keyboard shortcuts completos
+
+### Flutter Integration — `lib/features/music_studio/`
+- MusicStudioTab con InAppWebView (port 8768)
+- 6 Riverpod providers para estado
+- Registros web/stub para Flutter Web
+
+### Archivos nuevos
+```
+server/music_studio/main.py
+server/music_studio/models.py
+server/music_studio/requirements.txt
+server/music_studio/Dockerfile
+server/music_studio/services/separator.py
+server/music_studio/services/analyzer.py
+server/music_studio/services/transcriber.py
+server/music_studio/services/downloader.py
+assets/music_studio/music_studio.html
+lib/features/music_studio/music_studio_tab.dart
+lib/features/music_studio/music_studio_providers.dart
+lib/features/music_studio/music_studio_stub_register.dart
+lib/features/music_studio/music_studio_web_register.dart
+.context/MUSIC_STUDIO.md
+```
+
+### Archivos modificados
+```
+lib/app.dart          # Agregar Music Studio (index 13, sidebar, bottom nav)
+pubspec.yaml          # Agregar assets/music_studio/
+.context/ARCHITECTURE.md
+.context/README.md
+.context/CHANGELOG.md
+```
+
+---
+
 ## 2026-04-02 — Integracion LiveStage + Limpieza
 
 ### Nuevas features
