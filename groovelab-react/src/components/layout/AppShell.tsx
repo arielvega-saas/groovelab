@@ -4,6 +4,7 @@ import { TopBar } from './TopBar'
 import { useAppStore } from '@/stores/app-store'
 import { audioEngine } from '@/stores/audio-engine'
 
+const Dashboard = lazy(() => import('@/features/dashboard/Dashboard'))
 const Metronome = lazy(() => import('@/features/metronome/Metronome'))
 const Drums = lazy(() => import('@/features/drums/Drums'))
 const SamplerPads = lazy(() => import('@/features/sampler-pads/SamplerPads'))
@@ -16,6 +17,7 @@ const Multitracks = lazy(() => import('@/features/multitracks/Multitracks'))
 const Playback = lazy(() => import('@/features/playback/Playback'))
 
 const TOOLS = {
+  dashboard: Dashboard,
   metronome: Metronome,
   drums: Drums,
   sampler: SamplerPads,
