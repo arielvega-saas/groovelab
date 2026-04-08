@@ -298,41 +298,100 @@ function Waveform({
 
       ctx.clearRect(0, 0, w, h)
 
-      // draw waveform bars with gradient fill
       const barW = w / peaks.length
-      const half = h / 2
+      const gap = Math.max(0.5, barW * 0.15)
+      const drawBarW = Math.max(1, barW - gap)
+      const topZone = h * 0.62   // main waveform occupies upper 62%
+      const mirrorZone = h * 0.30 // reflection occupies lower 30%
+      const midY = topZone         // dividing line
+      const cornerR = Math.min(drawBarW / 2, 2.5) // rounded top radius
 
+      // ---- Main waveform bars with gradient fill and rounded tops ----
       for (let i = 0; i < peaks.length; i++) {
-        const amp = peaks[i] * half * 0.9
-        const x = i * barW
+        const amp = peaks[i] * topZone * 0.85
+        if (amp < 1) continue
+        const x = i * barW + gap / 2
+        const barTop = midY - amp
 
-        // Gradient from color to transparent
-        const grad = ctx.createLinearGradient(x, half - amp, x, half + amp)
-        grad.addColorStop(0, color + 'CC')
-        grad.addColorStop(0.5, color + '88')
-        grad.addColorStop(1, color + '22')
+        // Gradient: color at top fading to transparent at baseline
+        const grad = ctx.createLinearGradient(x, barTop, x, midY)
+        grad.addColorStop(0, color + 'DD')
+        grad.addColorStop(0.6, color + '66')
+        grad.addColorStop(1, color + '0A')
         ctx.fillStyle = grad
-        ctx.fillRect(x + 0.5, half - amp, Math.max(1, barW - 1), amp * 2)
+
+        // Draw bar with rounded top corners
+        ctx.beginPath()
+        ctx.moveTo(x, midY)
+        ctx.lineTo(x, barTop + cornerR)
+        ctx.quadraticCurveTo(x, barTop, x + cornerR, barTop)
+        ctx.lineTo(x + drawBarW - cornerR, barTop)
+        ctx.quadraticCurveTo(x + drawBarW, barTop, x + drawBarW, barTop + cornerR)
+        ctx.lineTo(x + drawBarW, midY)
+        ctx.closePath()
+        ctx.fill()
       }
 
-      // Animated playhead sweep during playback
+      // ---- Mirror / reflection below the baseline (inverted, 30% opacity) ----
+      ctx.save()
+      ctx.globalAlpha = 0.3
+      for (let i = 0; i < peaks.length; i++) {
+        const amp = peaks[i] * mirrorZone * 0.7
+        if (amp < 1) continue
+        const x = i * barW + gap / 2
+        const barBottom = midY + amp
+
+        const grad = ctx.createLinearGradient(x, midY, x, barBottom)
+        grad.addColorStop(0, color + '66')
+        grad.addColorStop(1, color + '00')
+        ctx.fillStyle = grad
+        ctx.fillRect(x, midY + 1, drawBarW, amp)
+      }
+      ctx.restore()
+
+      // ---- Thin glowing peak line tracing the tops ----
+      ctx.save()
+      ctx.strokeStyle = color
+      ctx.lineWidth = 1.5
+      ctx.shadowColor = color
+      ctx.shadowBlur = 6
+      ctx.beginPath()
+      for (let i = 0; i < peaks.length; i++) {
+        const amp = peaks[i] * topZone * 0.85
+        const x = i * barW + barW / 2
+        const y = midY - amp
+        if (i === 0) {
+          ctx.moveTo(x, y)
+        } else {
+          ctx.lineTo(x, y)
+        }
+      }
+      ctx.stroke()
+      ctx.restore()
+
+      // ---- Animated playhead sweep during playback ----
       if (playing && loopDuration > 0) {
         const elapsed = (Tone.now() - playStartTime) % loopDuration
         const phase = elapsed / loopDuration
         const px = phase * w
 
-        // Playhead line
-        ctx.fillStyle = 'rgba(255,255,255,0.85)'
-        ctx.fillRect(px, 0, 2, h)
+        // Outer glow halo
+        const halo = ctx.createLinearGradient(px - 12, 0, px + 12, 0)
+        halo.addColorStop(0, 'rgba(255,255,255,0)')
+        halo.addColorStop(0.35, 'rgba(255,255,255,0.06)')
+        halo.addColorStop(0.5, 'rgba(255,255,255,0.12)')
+        halo.addColorStop(0.65, 'rgba(255,255,255,0.06)')
+        halo.addColorStop(1, 'rgba(255,255,255,0)')
+        ctx.fillStyle = halo
+        ctx.fillRect(px - 12, 0, 24, h)
 
-        // Playhead glow
-        const glow = ctx.createLinearGradient(px - 6, 0, px + 8, 0)
-        glow.addColorStop(0, 'rgba(255,255,255,0)')
-        glow.addColorStop(0.4, 'rgba(255,255,255,0.15)')
-        glow.addColorStop(0.6, 'rgba(255,255,255,0.15)')
-        glow.addColorStop(1, 'rgba(255,255,255,0)')
-        ctx.fillStyle = glow
-        ctx.fillRect(px - 6, 0, 14, h)
+        // Core playhead line with glow
+        ctx.save()
+        ctx.shadowColor = 'rgba(255,255,255,0.8)'
+        ctx.shadowBlur = 8
+        ctx.fillStyle = 'rgba(255,255,255,0.9)'
+        ctx.fillRect(px - 0.75, 0, 1.5, h)
+        ctx.restore()
       }
 
       rafRef.current = requestAnimationFrame(draw)
@@ -348,7 +407,7 @@ function Waveform({
   return (
     <canvas
       ref={canvasRef}
-      className="w-full h-14 rounded-md"
+      className="w-full h-20 rounded-md"
       style={{ background: '#0A0A0A' }}
     />
   )
@@ -998,6 +1057,21 @@ export default function Looper() {
 
   return (
     <div className="flex flex-col h-full text-white select-none overflow-y-auto" style={{ background: '#0A0A0A' }}>
+      {/* Injected keyframes for recording pulse animation */}
+      <style>{`
+        @keyframes gl-rec-pulse {
+          0%, 100% { box-shadow: 0 0 8px rgba(255,59,48,0.3), inset 0 0 4px rgba(255,59,48,0.05); border-color: rgba(255,59,48,0.5); }
+          50% { box-shadow: 0 0 20px rgba(255,59,48,0.6), inset 0 0 8px rgba(255,59,48,0.1); border-color: rgba(255,59,48,0.8); }
+        }
+        @keyframes gl-overdub-pulse {
+          0%, 100% { box-shadow: 0 0 8px rgba(255,149,0,0.3), inset 0 0 4px rgba(255,149,0,0.05); border-color: rgba(255,149,0,0.5); }
+          50% { box-shadow: 0 0 20px rgba(255,149,0,0.6), inset 0 0 8px rgba(255,149,0,0.1); border-color: rgba(255,149,0,0.8); }
+        }
+        @keyframes gl-rec-dot-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.3; }
+        }
+      `}</style>
       {/* ---- Header ---- */}
       <div
         className="flex items-center justify-between px-4 py-3 border-b"
@@ -1152,6 +1226,29 @@ export default function Looper() {
             state={recordingState}
             elapsed={elapsed}
           />
+          {/* Loop duration in bars/beats */}
+          {loopDuration > 0 && (
+            <div
+              className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 whitespace-nowrap"
+              style={{ top: -18 }}
+            >
+              {(() => {
+                const barLen = (60 / bpm) * timeSig[0]
+                const bars = Math.max(1, Math.round(loopDuration / barLen))
+                const beats = Math.round(loopDuration / (60 / bpm))
+                return (
+                  <>
+                    <span className="text-[9px] font-mono font-bold" style={{ color: '#00E5FF' }}>
+                      {bars} {bars === 1 ? 'bar' : 'bars'}
+                    </span>
+                    <span className="text-[9px] font-mono" style={{ color: '#555' }}>
+                      ({beats} beats / {loopDuration.toFixed(1)}s)
+                    </span>
+                  </>
+                )
+              })()}
+            </div>
+          )}
           {/* REC button overlaid at the bottom of the ring */}
           <button
             onClick={handleRec}
@@ -1268,8 +1365,30 @@ export default function Looper() {
       {/* ---- Layer List ---- */}
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2">
         {layers.length === 0 && (
-          <div className="flex items-center justify-center h-40 text-sm font-mono" style={{ color: '#444' }}>
-            No layers yet -- press REC to begin
+          <div className="flex flex-col items-center justify-center h-48 gap-4">
+            {/* Pulsing microphone icon */}
+            <div
+              className="animate-pulse flex items-center justify-center rounded-full"
+              style={{
+                width: 64,
+                height: 64,
+                background: 'radial-gradient(circle, rgba(255,59,48,0.12) 0%, transparent 70%)',
+                border: '1px solid rgba(255,59,48,0.18)',
+              }}
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF3B30" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="2" width="6" height="12" rx="3" />
+                <path d="M5 10a7 7 0 0 0 14 0" />
+                <line x1="12" y1="17" x2="12" y2="22" />
+                <line x1="8" y1="22" x2="16" y2="22" />
+              </svg>
+            </div>
+            <span className="text-sm font-mono font-bold" style={{ color: '#666' }}>
+              Tap REC to start your first loop
+            </span>
+            <span className="text-[10px] font-mono" style={{ color: '#444' }}>
+              Record up to {MAX_LAYERS} layers with overdub, mute, and solo
+            </span>
           </div>
         )}
 
@@ -1277,6 +1396,9 @@ export default function Looper() {
           const isActive = idx === activeLayerIdx
           const isAudible = hasSolo ? layer.solo && !layer.muted : !layer.muted
           const accentColor = LAYER_COLORS[idx % LAYER_COLORS.length]
+          const isRecordingThisLayer = isActive && recordingState === 'RECORDING'
+          const isOverdubbingThisLayer = isActive && recordingState === 'OVERDUBBING'
+          const isLayerRecActive = isRecordingThisLayer || isOverdubbingThisLayer
 
           return (
             <div
@@ -1285,8 +1407,13 @@ export default function Looper() {
               className="flex rounded-xl overflow-hidden transition-all cursor-pointer"
               style={{
                 background: isActive ? '#212121' : '#1A1A1A',
-                border: isActive ? `1px solid ${accentColor}44` : '1px solid #2a2a2a',
+                border: isLayerRecActive
+                  ? `1px solid ${isOverdubbingThisLayer ? 'rgba(255,149,0,0.6)' : 'rgba(255,59,48,0.6)'}`
+                  : isActive ? `1px solid ${accentColor}44` : '1px solid #2a2a2a',
                 boxShadow: isActive ? `0 0 12px ${accentColor}11` : undefined,
+                animation: isLayerRecActive
+                  ? `${isOverdubbingThisLayer ? 'gl-overdub-pulse' : 'gl-rec-pulse'} 1.2s ease-in-out infinite`
+                  : undefined,
               }}
             >
               {/* Colored accent bar */}
@@ -1322,6 +1449,37 @@ export default function Looper() {
                     {layer.buffer && (
                       <span className="text-[10px] font-mono" style={{ color: '#555' }}>
                         {fmtTime(layer.buffer.duration)}
+                      </span>
+                    )}
+                    {/* Recording state badge */}
+                    {isLayerRecActive && (
+                      <span
+                        className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded-sm tracking-wider"
+                        style={{
+                          background: isOverdubbingThisLayer ? 'rgba(255,149,0,0.18)' : 'rgba(255,59,48,0.18)',
+                          color: isOverdubbingThisLayer ? '#FF9500' : '#FF3B30',
+                          border: `1px solid ${isOverdubbingThisLayer ? 'rgba(255,149,0,0.35)' : 'rgba(255,59,48,0.35)'}`,
+                        }}
+                      >
+                        {isOverdubbingThisLayer ? 'OVERDUB' : 'REC'}
+                      </span>
+                    )}
+                    {!isLayerRecActive && isActive && recordingState === 'PLAYING' && (
+                      <span
+                        className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded-sm tracking-wider"
+                        style={{
+                          background: 'rgba(0,255,17,0.12)',
+                          color: '#00FF11',
+                          border: '1px solid rgba(0,255,17,0.25)',
+                        }}
+                      >
+                        PLAY
+                      </span>
+                    )}
+                    {/* Recording duration indicator */}
+                    {isLayerRecActive && (
+                      <span className="text-[10px] font-mono" style={{ color: isOverdubbingThisLayer ? '#FF9500' : '#FF3B30' }}>
+                        {fmtTime(elapsed)}
                       </span>
                     )}
                   </div>
@@ -1484,6 +1642,20 @@ export default function Looper() {
                   <span className="text-[9px] font-mono" style={{ color: '#555', width: 32, textAlign: 'right' }}>
                     {Math.round(layer.volume * 100)}%
                   </span>
+                  <span className="text-[8px] font-mono" style={{ color: '#444', width: 36, textAlign: 'right' }}>
+                    {layer.volume > 0 ? `${(20 * Math.log10(layer.volume)).toFixed(1)} dB` : '-inf'}
+                  </span>
+                  {/* Pulsing red dot when this layer is being overdubbed */}
+                  {isOverdubbingThisLayer && (
+                    <div
+                      className="w-2 h-2 rounded-full ml-1"
+                      style={{
+                        background: '#FF3B30',
+                        animation: 'gl-rec-dot-pulse 0.8s ease-in-out infinite',
+                        boxShadow: '0 0 6px rgba(255,59,48,0.6)',
+                      }}
+                    />
+                  )}
                 </div>
               </div>
             </div>

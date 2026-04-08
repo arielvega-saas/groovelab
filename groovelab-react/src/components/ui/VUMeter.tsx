@@ -21,6 +21,11 @@ export function VUMeter({
     <div
       className="flex gap-0.5"
       style={{ flexDirection: 'column-reverse', width, height }}
+      role="meter"
+      aria-label="Volume level"
+      aria-valuenow={Math.round(level * 100)}
+      aria-valuemin={0}
+      aria-valuemax={100}
     >
       {Array.from({ length: segments }, (_, i) => {
         const on = i < active || i === peakSeg

@@ -3,6 +3,14 @@ export default {
   darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx,js,jsx}'],
   theme: {
+    screens: {
+      'xs': '480px',
+      'sm': '640px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         studio: {
@@ -58,6 +66,7 @@ export default {
         'gl-warm': '#FF9500',
         'gl-danger': '#FF3B30',
         'gl-purple': '#BF5AF2',
+        'gl-text': '#E5E5EA',
         'gl-muted': '#8E8E93',
         'gl-dim': '#636366',
         pedal: {
@@ -171,8 +180,11 @@ export default {
         'touch-xl': '80px',
       },
       borderRadius: {
-        'pedal': '8px',
+        'pedal': '12px',
         'pad':   '16px',
+        'panel': '12px',
+        'card':  '12px',
+        'btn':   '8px',
       },
     },
   },

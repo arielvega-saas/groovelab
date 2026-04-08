@@ -552,13 +552,13 @@ function GaugeSVG({ cents, inTune }: { cents: number; inTune: boolean }) {
     return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`
   }
 
-  // Needle angle
+  // Needle angle - use rotation transform for smooth CSS transition
   const clamped = Math.max(-50, Math.min(50, cents))
   const needleAngle = startAngle + ((clamped + 50) / 100) * totalRange
   const needleRad = (needleAngle * Math.PI) / 180
   const needleLen = r - 12
 
-  // Tapered needle points
+  // Tapered needle points (computed at 0-degree reference, rotation applied via CSS)
   const tipX = cx + needleLen * Math.cos(needleRad)
   const tipY = cy + needleLen * Math.sin(needleRad)
   const perpRad = needleRad + Math.PI / 2
@@ -729,12 +729,13 @@ function GaugeSVG({ cents, inTune }: { cents: number; inTune: boolean }) {
       <text x="242" y="115" fill="#666" fontSize="9" fontFamily="monospace">+30</text>
       <text x="272" y="198" fill="#8E8E93" fontSize="10" fontFamily="monospace">+50</text>
 
-      {/* Tapered needle with drop shadow */}
+      {/* Tapered needle with drop shadow and smooth transition */}
       <polygon
         points={`${tipX},${tipY} ${bx1},${by1} ${bx2},${by2}`}
         fill={needleColor}
         filter={inTune ? 'url(#inTuneHalo)' : 'url(#needleDropShadow)'}
         opacity={0.95}
+        style={{ transition: 'all 0.1s ease-out' }}
       />
 
       {/* Needle glow line overlay */}
@@ -747,11 +748,27 @@ function GaugeSVG({ cents, inTune }: { cents: number; inTune: boolean }) {
         strokeWidth="1"
         filter="url(#needleGlowPro)"
         opacity={0.5}
+        style={{ transition: 'all 0.1s ease-out' }}
       />
 
+      {/* Needle tip glow when in-tune */}
+      {inTune && (
+        <circle
+          cx={tipX}
+          cy={tipY}
+          r="6"
+          fill="none"
+          stroke="#00FF11"
+          strokeWidth="2"
+          opacity={0.6}
+          filter="url(#needleGlowPro)"
+          style={{ transition: 'all 0.1s ease-out' }}
+        />
+      )}
+
       {/* Center hub */}
-      <circle cx={cx} cy={cy} r="8" fill="#2A2A2A" stroke={needleColor} strokeWidth="1.5" />
-      <circle cx={cx} cy={cy} r="3" fill={needleColor} opacity={0.8} />
+      <circle cx={cx} cy={cy} r="8" fill="#2A2A2A" stroke={needleColor} strokeWidth="1.5" style={{ transition: 'stroke 0.1s ease-out' }} />
+      <circle cx={cx} cy={cy} r="3" fill={needleColor} opacity={0.8} style={{ transition: 'fill 0.1s ease-out' }} />
     </svg>
   )
 }
@@ -762,17 +779,26 @@ function GaugeSVG({ cents, inTune }: { cents: number; inTune: boolean }) {
 
 function LcdCentDisplay({ cents, detectedNote, inTune }: { cents: number; detectedNote: string | null; inTune: boolean }) {
   const centsStr = cents >= 0 ? `+${Math.round(cents)}` : `${Math.round(cents)}`
+  const absCents = Math.abs(cents)
+
+  // Tiered color based on cent deviation
   const color = !detectedNote
     ? '#555'
-    : inTune
+    : absCents < 5
       ? '#00FF11'
-      : Math.abs(cents) < 15
-        ? '#FF9500'
-        : '#FF3B30'
+      : absCents < 15
+        ? '#FFD60A'
+        : absCents < 30
+          ? '#FF9500'
+          : '#FF3B30'
+
+  // Accuracy bar: deviation mapped to percentage (0 = center, 50 = full left/right)
+  const barPercent = detectedNote ? Math.min(100, (absCents / 50) * 100) : 0
+  const barDirection = cents >= 0 ? 'right' : 'left'
 
   return (
     <div
-      className="relative mx-auto px-5 py-2 rounded-lg border"
+      className="relative mx-auto px-5 py-3 rounded-lg border"
       style={{
         background: 'linear-gradient(180deg, #0D0D0D 0%, #141414 100%)',
         borderColor: '#2A2A2A',
@@ -781,23 +807,46 @@ function LcdCentDisplay({ cents, detectedNote, inTune }: { cents: number; detect
           : 'inset 0 1px 3px rgba(0,0,0,0.5)',
       }}
     >
-      <span
-        className="text-3xl font-mono font-bold tabular-nums tracking-wider"
-        style={{
-          color,
-          textShadow: detectedNote
-            ? `0 0 10px ${color}66, 0 0 20px ${color}33`
-            : 'none',
-        }}
-      >
-        {detectedNote ? `${centsStr}` : '--'}
-      </span>
-      <span
-        className="text-lg font-mono ml-0.5"
-        style={{ color: `${color}99` }}
-      >
-        {'\u00A2'}
-      </span>
+      {/* Cents value */}
+      <div className="flex items-baseline justify-center">
+        <span
+          className="text-4xl font-mono font-extrabold tabular-nums tracking-wider"
+          style={{
+            color,
+            textShadow: detectedNote
+              ? `0 0 12px ${color}66, 0 0 24px ${color}33`
+              : 'none',
+          }}
+        >
+          {detectedNote ? `${centsStr}` : '--'}
+        </span>
+        <span
+          className="text-xl font-mono font-semibold ml-1"
+          style={{ color: `${color}99` }}
+        >
+          {'\u00A2'}
+        </span>
+      </div>
+
+      {/* Accuracy bar */}
+      <div className="mt-2 relative h-2 rounded-full overflow-hidden" style={{ background: '#1A1A1A' }}>
+        {/* Center tick */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-px" style={{ background: '#444' }} />
+        {/* Deviation fill */}
+        {detectedNote && (
+          <div
+            className="absolute top-0 bottom-0 rounded-full transition-all duration-100 ease-out"
+            style={{
+              background: color,
+              opacity: 0.75,
+              boxShadow: `0 0 6px ${color}66`,
+              ...(barDirection === 'right'
+                ? { left: '50%', width: `${barPercent / 2}%` }
+                : { right: '50%', width: `${barPercent / 2}%` }),
+            }}
+          />
+        )}
+      </div>
     </div>
   )
 }
@@ -946,6 +995,7 @@ export default function Tuner() {
   const [preset, setPreset] = useState<string>('chromatic')
   const [_pitchHistory, setPitchHistory] = useState<number[]>([])
   const [peakDb, setPeakDb] = useState(0)
+  const [stabilityStddev, setStabilityStddev] = useState<number>(Infinity)
 
   /* Refs */
   const micRef = useRef<Tone.UserMedia | null>(null)
@@ -955,6 +1005,7 @@ export default function Tuner() {
   const historyCanvasRef = useRef<HTMLCanvasElement>(null)
   const synthRef = useRef<Tone.Synth | null>(null)
   const pitchHistoryRef = useRef<number[]>([])
+  const stabilityHistoryRef = useRef<number[]>([])
   const peakHoldRef = useRef(0)
   const peakDecayRef = useRef(0)
 
@@ -996,7 +1047,9 @@ export default function Tuner() {
     setDB(MIN_DB)
     setPitchHistory([])
     setPeakDb(0)
+    setStabilityStddev(Infinity)
     pitchHistoryRef.current = []
+    stabilityHistoryRef.current = []
     peakHoldRef.current = 0
     peakDecayRef.current = 0
   }, [])
@@ -1048,6 +1101,18 @@ export default function Tuner() {
           note.cents,
         ]
         setPitchHistory([...pitchHistoryRef.current])
+
+        // Track stability over last 20 readings
+        stabilityHistoryRef.current = [
+          ...stabilityHistoryRef.current.slice(-19),
+          note.cents,
+        ]
+        if (stabilityHistoryRef.current.length >= 5) {
+          const arr = stabilityHistoryRef.current
+          const mean = arr.reduce((a, b) => a + b, 0) / arr.length
+          const variance = arr.reduce((sum, v) => sum + (v - mean) ** 2, 0) / arr.length
+          setStabilityStddev(Math.sqrt(variance))
+        }
       }
 
       // Draw waveform - enhanced with gradient fill and grid
@@ -1365,20 +1430,43 @@ export default function Tuner() {
 
       {/* Preset selector */}
       <div className="flex gap-1.5">
-        {Object.entries(PRESETS).map(([key, p]) => (
-          <button
-            key={key}
-            onClick={() => setPreset(key)}
-            className={cn(
-              'flex-1 px-2 py-1.5 rounded-md text-xs font-mono transition-colors',
-              preset === key
-                ? 'bg-gl-accent/20 text-gl-accent border border-gl-accent/40'
-                : 'bg-gl-surface text-gl-muted border border-gl-border hover:border-gl-dim'
-            )}
-          >
-            {p.label}
-          </button>
-        ))}
+        {Object.entries(PRESETS).map(([key, p]) => {
+          const accentColors: Record<string, string> = {
+            chromatic: '#00E5FF',
+            guitar: '#FF9500',
+            bass: '#FF3B30',
+            ukulele: '#FFD60A',
+          }
+          const dotColor = accentColors[key] ?? '#888'
+          const isActive = preset === key
+
+          return (
+            <button
+              key={key}
+              onClick={() => setPreset(key)}
+              className={cn(
+                'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-mono transition-all relative',
+                isActive
+                  ? 'bg-gl-accent/20 text-gl-accent border border-gl-accent/40'
+                  : 'bg-gl-surface text-gl-muted border border-gl-border hover:border-gl-dim'
+              )}
+              style={{
+                borderBottomWidth: isActive ? '2px' : '1px',
+                borderBottomColor: isActive ? dotColor : undefined,
+              }}
+            >
+              <span
+                className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+                style={{
+                  backgroundColor: dotColor,
+                  opacity: isActive ? 1 : 0.4,
+                  boxShadow: isActive ? `0 0 6px ${dotColor}66` : 'none',
+                }}
+              />
+              {p.label}
+            </button>
+          )
+        })}
       </div>
 
       {/* Preset string indicators */}
@@ -1453,11 +1541,48 @@ export default function Tuner() {
           <LcdCentDisplay cents={cents} detectedNote={detectedNote} inTune={inTune} />
         </div>
 
-        {/* Hz */}
-        <div className="flex justify-center mt-2">
-          <span className="text-sm font-mono text-gl-muted tabular-nums">
-            {detectedNote ? `${frequency.toFixed(1)} Hz` : '--- Hz'}
-          </span>
+        {/* Hz and stability row */}
+        <div className="flex items-center justify-center gap-4 mt-2">
+          {/* Frequency display */}
+          <div className="flex flex-col items-center">
+            <span className="text-[9px] font-mono uppercase tracking-widest text-gl-dim">FREQ</span>
+            <span
+              className="text-xl font-mono font-semibold tabular-nums tracking-wide"
+              style={{
+                color: detectedNote ? '#E0E0E0' : '#555',
+                textShadow: detectedNote
+                  ? '0 0 8px rgba(0, 229, 255, 0.3), 0 0 16px rgba(0, 229, 255, 0.15)'
+                  : 'none',
+              }}
+            >
+              {detectedNote ? `${frequency.toFixed(1)} Hz` : '--- Hz'}
+            </span>
+          </div>
+
+          {/* Stability indicator */}
+          {detectedNote && (
+            <div
+              className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider border"
+              style={{
+                color:
+                  stabilityStddev < 3 ? '#00FF11' : stabilityStddev < 8 ? '#FFD60A' : '#FF3B30',
+                borderColor:
+                  stabilityStddev < 3
+                    ? 'rgba(0, 255, 17, 0.35)'
+                    : stabilityStddev < 8
+                      ? 'rgba(255, 214, 10, 0.35)'
+                      : 'rgba(255, 59, 48, 0.35)',
+                background:
+                  stabilityStddev < 3
+                    ? 'rgba(0, 255, 17, 0.1)'
+                    : stabilityStddev < 8
+                      ? 'rgba(255, 214, 10, 0.1)'
+                      : 'rgba(255, 59, 48, 0.1)',
+              }}
+            >
+              {stabilityStddev < 3 ? 'STABLE' : stabilityStddev < 8 ? 'SETTLING' : 'UNSTABLE'}
+            </div>
+          )}
         </div>
 
         {/* Strobe mode */}

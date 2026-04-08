@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, type KeyboardEvent } from 'react'
 import { cn } from '@/lib/utils'
 
 interface RotaryKnobProps {
@@ -53,6 +53,18 @@ export function RotaryKnob({
     isDragging.current = false
   }, [])
 
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
+    if (disabled) return
+    const step = e.shiftKey ? 0.1 : 0.02
+    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
+      e.preventDefault()
+      onChange(Math.min(1, value + step))
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
+      e.preventDefault()
+      onChange(Math.max(0, value - step))
+    }
+  }, [disabled, value, onChange])
+
   return (
     <div className={cn('flex flex-col items-center gap-1 no-select', className)}>
       <div
@@ -68,8 +80,15 @@ export function RotaryKnob({
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
+          onKeyDown={onKeyDown}
+          role="slider"
+          aria-valuenow={Math.round(value * 100)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={label}
+          tabIndex={disabled ? -1 : 0}
           className={cn(
-            'relative rounded-full',
+            'relative rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gl-accent/50',
             variantBg[variant],
             disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-grab active:cursor-grabbing',
           )}

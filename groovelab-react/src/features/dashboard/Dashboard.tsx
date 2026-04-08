@@ -197,11 +197,13 @@ function ModuleCardComponent({ card }: { card: ModuleCard }) {
 
   return (
     <button
+      role="listitem"
       onClick={() => setActiveTool(card.id)}
       className={cn(
         'group relative flex flex-col p-4 rounded-xl border transition-all duration-200',
         'hover:scale-[1.02] active:scale-[0.98]',
         'bg-gl-panel hover:bg-gl-surface',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gl-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-gl-deepest',
         isRecentlyUsed
           ? 'border-gl-border/80 hover:border-opacity-60'
           : 'border-gl-border/40 hover:border-gl-border',
@@ -331,7 +333,7 @@ export default function Dashboard() {
           <h2 className="text-sm font-semibold text-gl-muted uppercase tracking-wider">Modules</h2>
           <div className="flex-1 h-px bg-gl-border/50" />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 module-grid" role="list" aria-label="Available modules">
           {MODULE_CARDS.map((card) => (
             <ModuleCardComponent key={card.id} card={card} />
           ))}

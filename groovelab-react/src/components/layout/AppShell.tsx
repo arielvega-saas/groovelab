@@ -61,9 +61,9 @@ export function AppShell() {
   return (
     <div className="h-dvh flex bg-gl-deepest text-gl-text overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col lg:ml-[72px]">
+      <div className="flex-1 flex flex-col lg:ml-[72px] transition-[margin] duration-200">
         <TopBar />
-        <main className="flex-1 overflow-y-auto p-4">
+        <main className="flex-1 overflow-y-auto p-2 sm:p-4" role="main" aria-label="Module content">
           <Suspense fallback={<LoadingSpinner />}>
             <ActiveComponent />
           </Suspense>

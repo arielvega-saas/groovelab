@@ -572,6 +572,26 @@ if (typeof document !== 'undefined' && !document.getElementById(styleId)) {
     .led-current-pulse {
       animation: led-pulse 300ms ease-in-out;
     }
+    @keyframes step-hit-glow {
+      0% { transform: scale(1); filter: brightness(1); }
+      30% { transform: scale(1.15); filter: brightness(1.8); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+    .step-hit-active {
+      animation: step-hit-glow 100ms ease-out;
+    }
+    @keyframes pad-ripple {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(2.5); opacity: 0; }
+    }
+    .pad-ripple-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 2px solid currentColor;
+      pointer-events: none;
+      animation: pad-ripple 400ms ease-out forwards;
+    }
   `
   document.head.appendChild(style)
 }
@@ -920,6 +940,13 @@ export default function Drums() {
                   style={{ backgroundColor: voice.color, boxShadow: `0 0 6px ${voice.color}` }}
                 />
               )}
+              {/* Ripple ring on pad hit */}
+              {isHit && (
+                <span
+                  className="pad-ripple-ring"
+                  style={{ color: voice.color }}
+                />
+              )}
             </button>
           )
         })}
@@ -948,6 +975,38 @@ export default function Drums() {
 
       {/* 16-step sequencer grid */}
       <div className="rounded-2xl bg-studio-800 p-3 neu-inset overflow-x-auto">
+        {/* Beat visualization blocks */}
+        <div className="grid gap-1 mb-0.5" style={{ gridTemplateColumns: `48px repeat(${STEPS}, 1fr)` }}>
+          <div /> {/* spacer */}
+          {Array.from({ length: STEPS }, (_, i) => {
+            const hitColors = VOICES.filter((v) => pattern[v.id][i] > 0).map((v) => v.color)
+            const isCurrentStep = currentStep === i
+            const bg = isCurrentStep && hitColors.length > 0
+              ? hitColors.length === 1
+                ? hitColors[0]
+                : `linear-gradient(90deg, ${hitColors.join(', ')})`
+              : isCurrentStep
+                ? 'rgba(0,229,255,0.25)'
+                : hitColors.length > 0
+                  ? `linear-gradient(90deg, ${hitColors.map((c) => c + '44').join(', ')})`
+                  : 'rgba(255,255,255,0.04)'
+            return (
+              <div
+                key={i}
+                className="rounded-sm transition-all duration-75"
+                style={{
+                  height: 4,
+                  background: bg,
+                  opacity: isCurrentStep ? 1 : 0.5,
+                  boxShadow: isCurrentStep && hitColors.length > 0
+                    ? `0 0 6px ${hitColors[0]}88`
+                    : undefined,
+                }}
+              />
+            )
+          })}
+        </div>
+
         {/* Step numbers header */}
         <div className="grid gap-1 mb-1" style={{ gridTemplateColumns: `48px repeat(${STEPS}, 1fr)` }}>
           <div /> {/* spacer */}
@@ -1006,14 +1065,18 @@ export default function Drums() {
                     step % 4 === 0 ? 'border-studio-600/40' : 'border-transparent',
                     !isActive && 'bg-studio-750/60 hover:bg-studio-750',
                     isCurrent && !isActive && 'ring-1 ring-accent/60',
-                    isCurrent && isActive && 'led-current-pulse',
+                    isCurrent && isActive && 'step-hit-active',
                   )}
-                  style={isActive ? {
-                    background: `radial-gradient(circle at center, ${voice.color}${Math.round(40 + vel * 50).toString(16).padStart(2, '0')} 0%, ${voice.color}${Math.round(15 + vel * 25).toString(16).padStart(2, '0')} 70%, transparent 100%)`,
-                    boxShadow: isCurrent
-                      ? `0 0 14px ${voice.color}AA, 0 0 4px ${voice.color}66, inset 0 0 8px ${voice.color}44`
-                      : `0 0 6px ${voice.color}55, inset 0 0 4px ${voice.color}22`,
-                  } : undefined}
+                  style={{
+                    ...(isActive ? {
+                      background: `radial-gradient(circle at center, ${voice.color}${Math.round(40 + vel * 50).toString(16).padStart(2, '0')} 0%, ${voice.color}${Math.round(15 + vel * 25).toString(16).padStart(2, '0')} 70%, transparent 100%)`,
+                      boxShadow: isCurrent
+                        ? `0 0 20px ${voice.color}CC, 0 0 8px ${voice.color}88, inset 0 0 12px ${voice.color}66`
+                        : `0 0 6px ${voice.color}55, inset 0 0 4px ${voice.color}22`,
+                    } : isCurrent ? {
+                      background: 'linear-gradient(180deg, rgba(0,229,255,0.06) 0%, rgba(0,229,255,0.02) 100%)',
+                    } : undefined),
+                  }}
                 >
                   {/* Velocity inner bar */}
                   {isActive && (
@@ -1046,11 +1109,11 @@ export default function Drums() {
                       className="absolute inset-0 rounded-md pointer-events-none"
                       style={{
                         background: isActive
-                          ? `radial-gradient(circle, ${voice.color}33 0%, transparent 70%)`
-                          : 'radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%)',
+                          ? `radial-gradient(circle, ${voice.color}44 0%, ${voice.color}18 50%, transparent 100%)`
+                          : 'linear-gradient(180deg, rgba(0,229,255,0.10) 0%, rgba(0,229,255,0.04) 50%, rgba(0,229,255,0.08) 100%)',
                         boxShadow: isActive
-                          ? `inset 0 0 10px ${voice.color}44`
-                          : 'inset 0 0 6px rgba(0,229,255,0.1)',
+                          ? `inset 0 0 14px ${voice.color}55, 0 0 6px ${voice.color}33`
+                          : 'inset 0 0 8px rgba(0,229,255,0.12)',
                       }}
                     />
                   )}

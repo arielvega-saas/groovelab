@@ -1333,8 +1333,10 @@ export default function Pedalboard() {
   /* ── Tone.js audio chain management ── */
   const effectNodesRef = useRef<(Tone.ToneAudioNode | null)[]>([]);
   const micRef = useRef<Tone.UserMedia | null>(null);
+  const meterRef = useRef<Tone.Meter | null>(null);
   const audioStartedRef = useRef(false);
   const [audioLive, setAudioLive] = useState(false);
+  const [inputLevel, setInputLevel] = useState(-60);
 
   const rebuildChain = useCallback(() => {
     // Dispose previous effects
@@ -1378,6 +1380,15 @@ export default function Pedalboard() {
       }
       activeEffects[activeEffects.length - 1].toDestination();
     }
+
+    // Reconnect meter (disconnect() above drops all connections)
+    if (meterRef.current && micRef.current) {
+      try {
+        micRef.current.connect(meterRef.current);
+      } catch {
+        /* noop */
+      }
+    }
   }, [chain]);
 
   // Rebuild chain when chain changes
@@ -1398,6 +1409,7 @@ export default function Pedalboard() {
         }
       });
       try {
+        meterRef.current?.dispose();
         micRef.current?.close();
         micRef.current?.dispose();
       } catch {
@@ -1406,6 +1418,22 @@ export default function Pedalboard() {
     };
   }, []);
 
+  // Read meter level via requestAnimationFrame
+  useEffect(() => {
+    if (!audioLive) return;
+    let raf: number;
+    const readMeter = () => {
+      if (meterRef.current) {
+        const val = meterRef.current.getValue();
+        const db = typeof val === 'number' ? val : val[0];
+        setInputLevel(Math.max(-60, Math.min(0, db)));
+      }
+      raf = requestAnimationFrame(readMeter);
+    };
+    raf = requestAnimationFrame(readMeter);
+    return () => cancelAnimationFrame(raf);
+  }, [audioLive]);
+
   const startAudio = useCallback(async () => {
     if (audioStartedRef.current) return;
     try {
@@ -1413,6 +1441,12 @@ export default function Pedalboard() {
       const mic = new Tone.UserMedia();
       await mic.open();
       micRef.current = mic;
+
+      // Create meter and connect to mic for level monitoring
+      const meter = new Tone.Meter({ smoothing: 0.8 });
+      mic.connect(meter);
+      meterRef.current = meter;
+
       audioStartedRef.current = true;
       setAudioLive(true);
       rebuildChain();
@@ -1496,6 +1530,14 @@ export default function Pedalboard() {
           0%, 100% { opacity: 0.4; }
           50% { opacity: 1; }
         }
+        @keyframes empty-chain-pulse {
+          0%, 100% { border-color: rgba(0,229,255,0.08); }
+          50% { border-color: rgba(0,229,255,0.25); }
+        }
+        @keyframes plus-pulse {
+          0%, 100% { transform: scale(1); opacity: 0.6; }
+          50% { transform: scale(1.15); opacity: 1; }
+        }
       `}</style>
 
       {/* ── Top Bar ── */}
@@ -1569,6 +1611,51 @@ export default function Pedalboard() {
           >
             {audioLive ? 'Live' : 'Start Audio'}
           </button>
+
+          {/* Signal Level Indicator */}
+          <div className="flex items-center gap-1.5 px-2">
+            {!audioLive ? (
+              <div className="flex items-center gap-1.5">
+                <div
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: '#FF3B30',
+                    opacity: 0.5,
+                    boxShadow: '0 0 4px rgba(255,59,48,0.3)',
+                  }}
+                />
+                <span className="text-[9px] font-mono uppercase tracking-wider" style={{ color: '#FF3B3080' }}>
+                  No Signal
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-[3px]">
+                {Array.from({ length: 8 }).map((_, i) => {
+                  // Map inputLevel (-60..0 dB) to 0..8 segments
+                  const threshold = -60 + (i + 1) * (60 / 8);
+                  const active = inputLevel >= threshold;
+                  let color: string;
+                  if (i < 4) color = '#34C759';
+                  else if (i < 6) color = '#FFCC00';
+                  else color = '#FF3B30';
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        width: 4,
+                        height: 14,
+                        borderRadius: 1,
+                        backgroundColor: active ? color : 'rgba(255,255,255,0.06)',
+                        boxShadow: active ? `0 0 4px ${color}60` : 'none',
+                        transition: 'background-color 0.08s ease-out, box-shadow 0.08s ease-out',
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => setDrawerOpen(true)}
             className="w-10 h-10 rounded-lg font-bold text-lg flex items-center justify-center transition-all"
@@ -1589,7 +1676,25 @@ export default function Pedalboard() {
         style={{ background: 'rgba(255,255,255,0.015)' }}
       >
         <div className="flex items-center gap-1.5 text-[9px] font-mono text-gray-500 uppercase tracking-wider">
-          <span className="text-[#00E5FF]">Input</span>
+          <div
+            className="w-2 h-2 rounded-full shrink-0 transition-all duration-300"
+            style={{
+              backgroundColor: audioLive ? '#34C759' : '#FF3B30',
+              boxShadow: audioLive
+                ? '0 0 6px rgba(52,199,89,0.6)'
+                : '0 0 4px rgba(255,59,48,0.3)',
+              opacity: audioLive ? 1 : 0.6,
+            }}
+          />
+          <span
+            className="transition-all duration-300"
+            style={{
+              color: '#00E5FF',
+              textShadow: audioLive ? '0 0 8px rgba(0,229,255,0.6), 0 0 16px rgba(0,229,255,0.3)' : 'none',
+            }}
+          >
+            Input
+          </span>
           <svg width="16" height="8" viewBox="0 0 16 8">
             <line x1="0" y1="4" x2="12" y2="4" stroke="#00E5FF" strokeWidth="1" opacity="0.4" />
             <polygon points="12,1 16,4 12,7" fill="#00E5FF" opacity="0.4" />
@@ -1624,7 +1729,15 @@ export default function Pedalboard() {
             <line x1="0" y1="4" x2="12" y2="4" stroke="#00E5FF" strokeWidth="1" opacity="0.4" />
             <polygon points="12,1 16,4 12,7" fill="#00E5FF" opacity="0.4" />
           </svg>
-          <span className="text-[#00E5FF]">Output</span>
+          <span
+            className="transition-all duration-300"
+            style={{
+              color: '#00E5FF',
+              textShadow: audioLive ? '0 0 8px rgba(0,229,255,0.6), 0 0 16px rgba(0,229,255,0.3)' : 'none',
+            }}
+          >
+            Output
+          </span>
         </div>
         {/* Animated signal dot indicator */}
         {audioLive && chain.length > 0 && (
@@ -1680,25 +1793,37 @@ export default function Pedalboard() {
             {chain.length === 0 ? (
               <button
                 onClick={() => setDrawerOpen(true)}
-                className="flex items-center justify-center w-[140px] h-[220px] rounded-xl shrink-0 mx-2 transition-all hover:border-[#00E5FF]/30 group"
+                className="flex items-center justify-center w-[200px] h-[220px] rounded-xl shrink-0 mx-2 transition-all hover:border-[#00E5FF]/30 group"
                 style={{
-                  border: '2px dashed rgba(255,255,255,0.08)',
-                  background: 'rgba(255,255,255,0.01)',
+                  border: '2px dashed rgba(0,229,255,0.12)',
+                  background: 'rgba(0,229,255,0.02)',
+                  animation: 'empty-chain-pulse 2.5s ease-in-out infinite',
                 }}
               >
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all group-hover:scale-110"
+                    className="w-12 h-12 rounded-full flex items-center justify-center transition-all group-hover:scale-110"
                     style={{
                       background: 'rgba(0,229,255,0.08)',
-                      border: '1px solid rgba(0,229,255,0.15)',
+                      border: '1.5px solid rgba(0,229,255,0.2)',
+                      boxShadow: '0 0 16px rgba(0,229,255,0.08)',
                     }}
                   >
-                    <span className="text-xl text-[#00E5FF]/60 group-hover:text-[#00E5FF]">+</span>
+                    <span
+                      className="text-2xl font-light text-[#00E5FF] group-hover:text-[#00E5FF]"
+                      style={{ animation: 'plus-pulse 2s ease-in-out infinite' }}
+                    >
+                      +
+                    </span>
                   </div>
-                  <span className="text-[9px] uppercase tracking-wider text-gray-600 group-hover:text-gray-400">
-                    Add Pedal
-                  </span>
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-[10px] font-semibold tracking-wide text-gray-400 group-hover:text-gray-300">
+                      Add your first pedal
+                    </span>
+                    <span className="text-[8px] tracking-wider text-gray-600 group-hover:text-gray-500 text-center leading-relaxed px-2">
+                      Start building your signal chain
+                    </span>
+                  </div>
                 </div>
               </button>
             ) : (
