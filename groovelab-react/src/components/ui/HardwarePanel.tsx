@@ -12,14 +12,16 @@ export function HardwarePanel({
   children, title, className, variant = 'rack',
 }: HardwarePanelProps) {
   return (
-    <div
+    <section
       className={cn(
-        'relative rounded-lg overflow-hidden',
+        'relative rounded-xl overflow-hidden',
         variant === 'rack'
           ? 'bg-studio-800 shadow-metal-raised border border-studio-600/50'
           : 'bg-display-screen shadow-display border border-studio-600/30',
         className,
       )}
+      aria-label={title}
+      role="region"
     >
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       {title && (
@@ -28,6 +30,6 @@ export function HardwarePanel({
         </div>
       )}
       {children}
-    </div>
+    </section>
   )
 }

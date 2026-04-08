@@ -1,4 +1,4 @@
-import { useRef, useCallback, type PointerEvent } from 'react'
+import { useRef, useCallback, type PointerEvent, type KeyboardEvent } from 'react'
 import { cn } from '@/lib/cn'
 
 interface KnobProps {
@@ -40,14 +40,32 @@ export function Knob({
     if (newVal !== value) onChange(newVal)
   }, [min, max, onChange, value])
 
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
+    const step = e.shiftKey ? Math.ceil((max - min) / 10) : 1
+    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
+      e.preventDefault()
+      onChange(Math.min(max, value + step))
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
+      e.preventDefault()
+      onChange(Math.max(min, value - step))
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      onChange(min)
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      onChange(max)
+    }
+  }, [min, max, value, onChange])
+
   return (
     <div className={cn('flex flex-col items-center gap-1', className)}>
       <div
         ref={ref}
-        className="relative cursor-grab active:cursor-grabbing select-none"
+        className="relative cursor-grab active:cursor-grabbing select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gl-accent/50 rounded-full"
         style={{ width: size, height: size }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
+        onKeyDown={onKeyDown}
         role="slider"
         aria-valuenow={value}
         aria-valuemin={min}

@@ -27,6 +27,8 @@ export function LED({
   const isOn = state !== 'off'
   return (
     <div
+      role="status"
+      aria-label={`${color} LED ${isOn ? state : 'off'}`}
       className={cn(
         'rounded-full transition-all duration-150',
         sizeMap[size],

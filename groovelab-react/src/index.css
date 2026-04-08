@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Base Resets ───────────────────────────────────────────────── */
 * { -webkit-tap-highlight-color: transparent; }
 html { touch-action: manipulation; }
 body { font-family: 'Outfit', system-ui, sans-serif; margin: 0; }
@@ -10,25 +11,67 @@ body { font-family: 'Outfit', system-ui, sans-serif; margin: 0; }
 ::-webkit-scrollbar-track { background: #121212; }
 ::-webkit-scrollbar-thumb { background: #333333; border-radius: 3px; }
 
+/* ─── Neumorphic Shadows ────────────────────────────────────────── */
 .neu-raised { box-shadow: 4px 4px 8px #080808, -4px -4px 8px #1e1e1e; }
 .neu-inset { box-shadow: inset 3px 3px 6px #080808, inset -3px -3px 6px #1e1e1e; }
 .neu-flat { box-shadow: 2px 2px 4px #080808, -2px -2px 4px #1e1e1e; }
 
+/* ─── Glow Utilities ────────────────────────────────────────────── */
 .glow-accent { box-shadow: 0 0 12px rgba(0, 229, 255, 0.5); }
 .glow-green { box-shadow: 0 0 12px rgba(0, 255, 17, 0.5); }
 .glow-warm { box-shadow: 0 0 12px rgba(255, 149, 0, 0.5); }
 .glow-danger { box-shadow: 0 0 12px rgba(255, 59, 48, 0.5); }
+.glow-purple { box-shadow: 0 0 12px rgba(191, 90, 242, 0.5); }
 
 .text-glow-accent { text-shadow: 0 0 8px rgba(0, 229, 255, 0.6); }
 .text-glow-green { text-shadow: 0 0 8px rgba(0, 255, 17, 0.6); }
+.text-glow-warm { text-shadow: 0 0 8px rgba(255, 149, 0, 0.6); }
+.text-glow-danger { text-shadow: 0 0 8px rgba(255, 59, 48, 0.6); }
 
-/* --- GrooveLab Design System v2 --- */
+/* ─── GrooveLab Design System v2 ────────────────────────────────── */
 :root {
+  --gl-accent: #00E5FF;
+  --gl-green: #00FF11;
+  --gl-warm: #FF9500;
+  --gl-danger: #FF3B30;
+  --gl-purple: #BF5AF2;
+  --gl-radius: 12px;
+  --gl-radius-sm: 8px;
+  --gl-radius-lg: 16px;
   --shadow-pedal: 0 1px 0 #555, 0 2px 0 #444, 0 3px 0 #333,
                   0 4px 0 #222, 0 8px 20px rgba(0,0,0,0.6);
   --shadow-pedal-stomp: 0 1px 0 #222, 0 2px 4px rgba(0,0,0,0.6);
 }
 
+/* ─── Accessibility: Focus Rings ────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid rgba(0, 229, 255, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove focus ring for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Skip to content link (screen readers) */
+.sr-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  z-index: 100;
+  padding: 8px 16px;
+  background: var(--gl-accent);
+  color: #0A0A0A;
+  font-weight: 700;
+  transition: top 0.2s;
+}
+.sr-skip-link:focus {
+  top: 0;
+}
+
+/* ─── Typography Utilities ──────────────────────────────────────── */
 .numeric {
   font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
   font-variant-numeric: tabular-nums;
@@ -48,4 +91,86 @@ body { font-family: 'Outfit', system-ui, sans-serif; margin: 0; }
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── Module-specific Animations ────────────────────────────────── */
+
+/* Drum step hit glow */
+@keyframes step-hit-glow {
+  0% { transform: scale(1); filter: brightness(1); }
+  30% { transform: scale(1.12); filter: brightness(1.6); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+.step-hit-glow {
+  animation: step-hit-glow 150ms ease-out;
+}
+
+/* Pad ripple effect */
+@keyframes pad-ripple {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Recording pulse */
+@keyframes rec-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.6); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(255, 59, 48, 0); }
+}
+.rec-pulse {
+  animation: rec-pulse 1.2s ease-in-out infinite;
+}
+
+/* Signal flow animation */
+@keyframes signal-flow {
+  0% { left: 0; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+/* VU meter segment animation */
+@keyframes vu-flash {
+  0% { filter: brightness(1.5); }
+  100% { filter: brightness(1); }
+}
+
+/* Stability badge pulse */
+@keyframes stable-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(0, 255, 17, 0.3); }
+  50% { box-shadow: 0 0 8px rgba(0, 255, 17, 0.6); }
+}
+
+/* ─── Responsive: Mobile ────────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Tighter spacing on mobile */
+  .module-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  /* Ensure touch targets are at least 44px */
+  button, [role="button"], input[type="range"] {
+    min-height: 36px;
+  }
+
+  /* Reduce padding on mobile */
+  .mobile-compact {
+    padding: 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Single column on very small screens */
+  .module-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ─── Keyboard Navigation ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
